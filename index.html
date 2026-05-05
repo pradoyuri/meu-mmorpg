@@ -3,74 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reinos de Éter | MMORPG</title>
-    <!-- Bibliotecas de Peso -->
+    <title>Reinos de Éter | Pen & Paper</title>
+    <!-- Phaser 3 e Tailwind -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte Pixelada Estilo Retrô -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin: 0; background: #0a0a0a; overflow: hidden; font-family: 'Inter', sans-serif; }
-        canvas { box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .ui-overlay { pointer-events: none; }
-        .interactive { pointer-events: auto; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        body { 
+            margin: 0; 
+            background-color: #1a1a1a; 
+            font-family: 'Press Start 2P', cursive; 
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            /* Fundo da sala do mestre (pixel art pattern simulado) */
+            background-image: radial-gradient(#2c3e50 20%, transparent 20%), radial-gradient(#2c3e50 20%, transparent 20%);
+            background-color: #1a252f;
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+        }
+
+        /* Estilo Madeira Escura (Mesa do Mestre) */
+        .wood-panel {
+            background-color: #5d4037;
+            border-top: 6px solid #8d6e63;
+            border-bottom: 6px solid #3e2723;
+            box-shadow: inset 0 30px 40px rgba(0,0,0,0.5), 0 -10px 20px rgba(0,0,0,0.8);
+        }
+
+        /* Molduras Internas de Madeira */
+        .wood-frame {
+            background-color: #3e2723;
+            border-top: 4px solid #1b100c;
+            border-left: 4px solid #1b100c;
+            border-bottom: 4px solid #8d6e63;
+            border-right: 4px solid #8d6e63;
+        }
+
+        /* Estilo Pergaminho (Fichas e Chat) */
+        .parchment {
+            background-color: #f4e4bc;
+            color: #3e2723;
+            border: 4px solid #8d6e63;
+            box-shadow: inset 0 0 10px rgba(141, 110, 99, 0.5);
+        }
+
+        /* Botões de Ação Pixelados */
+        .pixel-btn {
+            background-color: #c62828;
+            color: white;
+            border-top: 4px solid #ef5350;
+            border-left: 4px solid #ef5350;
+            border-bottom: 4px solid #b71c1c;
+            border-right: 4px solid #b71c1c;
+            text-shadow: 2px 2px 0 #000;
+            transition: transform 0.1s;
+        }
+        .pixel-btn:active {
+            transform: translateY(4px);
+            border-top: 4px solid #b71c1c;
+            border-left: 4px solid #b71c1c;
+            border-bottom: 4px solid #ef5350;
+            border-right: 4px solid #ef5350;
+        }
+
+        /* Container do Tabuleiro (Phaser) */
+        #game-viewport {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        #phaser-canvas-container {
+            border: 12px solid #3e2723;
+            border-radius: 4px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            background-color: #000;
+        }
+
+        /* A Mesa Física na base da tela */
+        #table-ui {
+            height: 220px;
+            display: flex;
+            padding: 15px 30px;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        /* Barras de Status Retro */
+        .retro-bar-container { border: 2px solid #000; background-color: #424242; padding: 2px; }
+        .retro-hp-bar { background-color: #e53935; height: 12px; }
+        .retro-mp-bar { background-color: #1e88e5; height: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- Interface Imersiva (UI) -->
-    <div class="fixed inset-0 ui-overlay z-10 flex flex-col justify-between p-6">
-        
-        <!-- Topo: Status do Player -->
-        <div class="flex justify-between items-start">
-            <div class="glass p-4 rounded-lg w-64 interactive">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
-                    <div>
-                        <h2 class="text-white font-bold text-sm" id="player-name">Yuri, o Arcanista</h2>
-                        <p class="text-blue-400 text-xs font-mono">Nível 15 - Mago</p>
-                    </div>
-                </div>
-                <!-- Barras -->
-                <div class="space-y-2">
-                    <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                        <div class="bg-red-500 h-full" style="width: 80%"></div>
-                    </div>
-                    <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                        <div class="bg-blue-500 h-full" style="width: 40%"></div>
-                    </div>
-                </div>
-            </div>
+    <!-- VISOR DO JOGO (O TABULEIRO) -->
+    <div id="game-viewport">
+        <!-- O Phaser injetará o canvas aqui dentro -->
+        <div id="phaser-canvas-container"></div>
+    </div>
 
-            <!-- Mini Mapa / Eventos -->
-            <div class="glass p-3 rounded-lg text-white text-xs interactive">
-                <p class="text-yellow-400 animate-pulse">● EVENTO: Invasão em 05:00</p>
+    <!-- A MESA DE RPG (INTERFACE INFERIOR) -->
+    <div id="table-ui" class="wood-panel">
+        
+        <!-- Ficha do Personagem (Pergaminho) -->
+        <div class="parchment p-4 flex flex-col justify-between w-1/4" style="font-size: 10px; line-height: 1.8;">
+            <div>
+                <h2 class="text-sm border-b-2 border-yellow-800 pb-1 mb-2">YURI</h2>
+                <p>CLASSE: ARCANISTA</p>
+                <p>NIVEL: 15</p>
+            </div>
+            <div class="space-y-2">
+                <div>
+                    <span class="text-[8px]">HP 80/100</span>
+                    <div class="retro-bar-container"><div class="retro-hp-bar" style="width: 80%"></div></div>
+                </div>
+                <div>
+                    <span class="text-[8px]">MP 40/100</span>
+                    <div class="retro-bar-container"><div class="retro-mp-bar" style="width: 40%"></div></div>
+                </div>
             </div>
         </div>
 
-        <!-- Base: Chat e Habilidades -->
-        <div class="flex justify-between items-end">
-            <!-- Chat -->
-            <div class="glass w-80 h-40 rounded-lg p-3 text-white text-xs overflow-y-auto interactive">
-                <p><span class="text-gray-400">[Global]</span> <span class="text-green-400">LadinoX:</span> Alguém para Raid?</p>
-                <p><span class="text-gray-400">[Global]</span> <span class="text-blue-400">MagoReal:</span> Vendo poções de mana!</p>
+        <!-- Área de Dados e Ações (Madeira Escura) -->
+        <div class="wood-frame p-4 flex-grow flex flex-col items-center justify-center gap-4">
+            <h3 class="text-xs text-yellow-500 text-shadow">AÇÕES DE TURNO</h3>
+            <div class="flex gap-4">
+                <button class="pixel-btn w-16 h-16 flex items-center justify-center text-xs">ATK</button>
+                <button class="pixel-btn w-16 h-16 flex items-center justify-center text-xs" style="background-color: #1565c0; border-color: #1976d2 #0d47a1 #0d47a1 #1976d2;">MAG</button>
+                <button class="pixel-btn w-16 h-16 flex items-center justify-center text-xs" style="background-color: #2e7d32; border-color: #388e3c #1b5e20 #1b5e20 #388e3c;">POT</button>
             </div>
+        </div>
 
-            <!-- Hotbar de Habilidades -->
-            <div class="flex gap-2 pb-2 interactive">
-                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-blue-500 hover:scale-110 transition cursor-pointer">Q</div>
-                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-red-500 hover:scale-110 transition cursor-pointer">W</div>
-                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-yellow-500 hover:scale-110 transition cursor-pointer">E</div>
-                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-purple-500 hover:scale-110 transition cursor-pointer">R</div>
-            </div>
+        <!-- Chat / Log do Mestre (Pergaminho) -->
+        <div class="parchment p-3 w-1/3 overflow-y-auto" style="font-size: 9px; line-height: 1.5;">
+            <p class="text-red-800 font-bold mb-2">>> DIÁRIO DO MESTRE</p>
+            <p>Você entra na masmorra úmida.</p>
+            <p class="text-blue-700">* MagoReal rolou iniciativa: 18</p>
+            <p class="text-green-700">* LadinoX rolou iniciativa: 12</p>
+            <p>Um Goblin Selvagem aparece!</p>
         </div>
     </div>
 
-<!-- O JOGO (MOTOR PHASER) -->
+    <!-- MOTOR PHASER (O TABULEIRO FÍSICO) -->
     <script>
+        const container = document.getElementById('phaser-canvas-container');
+        
         const config = {
             type: Phaser.AUTO,
-            width: window.innerWidth,
-            height: window.innerHeight,
+            parent: 'phaser-canvas-container', // Diz ao Phaser para renderizar DENTRO da moldura
+            width: container.clientWidth,
+            height: container.clientHeight,
             physics: {
                 default: 'arcade',
                 arcade: { gravity: { y: 0 }, debug: false }
@@ -79,76 +172,63 @@
         };
 
         const game = new Phaser.Game(config);
-        let player;
+        let playerToken;
         let cursors;
-        let playerNameText;
 
-        function preload() {
-            // Removemos as dependências externas falhas. 
-            // As texturas serão geradas via código no método create().
-        }
+        function preload() {}
 
         function create() {
-            // Chão infinito com design mais polido
-            this.add.grid(0, 0, 4000, 4000, 64, 64, 0x111827).setAltFillStyle(0x1f2937).setOutlineStyle(0x374151);
+            // Desenha um "Grid de Batalha" de RPG de mesa (Papel Quadriculado)
+            this.cameras.main.setBackgroundColor('#f4e4bc'); // Cor de pergaminho
+            const gridSize = 40;
+            const gridGraphics = this.add.graphics();
+            gridGraphics.lineStyle(1, 0x8d6e63, 0.3); // Linhas de lápis
 
-            // GERAÇÃO VETORIAL DO PERSONAGEM (Zero dependência externa)
-            const playerGraphics = this.add.graphics();
-            // Capa/Corpo do Mago (Azul)
-            playerGraphics.fillStyle(0x2563eb, 1); 
-            playerGraphics.fillCircle(20, 20, 16);
-            playerGraphics.lineStyle(3, 0xffffff, 1);
-            playerGraphics.strokeCircle(20, 20, 16);
-            // Cajado/Orbe (Dourado)
-            playerGraphics.fillStyle(0xfbbf24, 1); 
-            playerGraphics.fillCircle(32, 20, 8);
+            for(let i = 0; i < 2000; i += gridSize) {
+                gridGraphics.moveTo(i, 0); gridGraphics.lineTo(i, 2000);
+                gridGraphics.moveTo(0, i); gridGraphics.lineTo(2000, i);
+            }
+            gridGraphics.strokePath();
+
+            // GERAÇÃO DO "TOKEN" DO JOGADOR (Estilo Miniatura de Plástico)
+            const tokenGraphics = this.add.graphics();
             
-            // Transforma o vetor em uma textura utilizável pelo motor físico
-            playerGraphics.generateTexture('arcanista_sprite', 40, 40);
-            playerGraphics.destroy(); // Limpa o vetor da memória
+            // Base do Token (Preta)
+            tokenGraphics.fillStyle(0x1a1a1a, 1);
+            tokenGraphics.fillCircle(20, 20, 18);
+            // Corpo (Pixelado/Retrô)
+            tokenGraphics.fillStyle(0x1e88e5, 1); // Azul Mago
+            tokenGraphics.fillRect(10, 10, 20, 20);
+            tokenGraphics.fillStyle(0xfbbf24, 1); // Detalhe Ouro
+            tokenGraphics.fillRect(16, 16, 8, 8);
+            
+            tokenGraphics.generateTexture('token_sprite', 40, 40);
+            tokenGraphics.destroy();
 
-            // Cria o Jogador com a nova textura
-            player = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/2, 'arcanista_sprite');
-            player.setCollideWorldBounds(true);
-
-            // Câmera com interpolação (movimento suave)
-            this.cameras.main.startFollow(player, true, 0.08, 0.08);
+            // Cria o Jogador no tabuleiro
+            playerToken = this.physics.add.sprite(config.width/2, config.height/2, 'token_sprite');
+            
+            // Câmera do Tabuleiro
+            this.cameras.main.startFollow(playerToken, true, 0.1, 0.1);
             
             cursors = this.input.keyboard.createCursorKeys();
-
-            // Texto Flutuante corrigido (ancorado no centro inferior)
-            playerNameText = this.add.text(0, 0, "Você", { 
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '14px', 
-                fill: '#ffffff',
-                fontStyle: 'bold',
-                stroke: '#000000',
-                strokeThickness: 3
-            }).setOrigin(0.5, 1);
         }
 
         function update() {
-            // Movimentação Fluida
-            player.setVelocity(0);
-            const speed = 300; // Velocidade base
+            // Movimentação em Grid (Simulando peças de tabuleiro)
+            playerToken.setVelocity(0);
+            const speed = 200;
 
-            if (cursors.left.isDown) {
-                player.setVelocityX(-speed);
-                player.setFlipX(true); // Vira o sprite para a esquerda
-            } else if (cursors.right.isDown) {
-                player.setVelocityX(speed);
-                player.setFlipX(false); // Vira o sprite para a direita
-            }
+            if (cursors.left.isDown) playerToken.setVelocityX(-speed);
+            else if (cursors.right.isDown) playerToken.setVelocityX(speed);
 
-            if (cursors.up.isDown) player.setVelocityY(-speed);
-            else if (cursors.down.isDown) player.setVelocityY(speed);
-
-            // Mantém o texto exatamente em cima do jogador dinamicamente
-            playerNameText.setPosition(player.x, player.y - 25);
+            if (cursors.up.isDown) playerToken.setVelocityY(-speed);
+            else if (cursors.down.isDown) playerToken.setVelocityY(speed);
         }
 
+        // Redimensionamento Inteligente
         window.addEventListener('resize', () => {
-            game.scale.resize(window.innerWidth, window.innerHeight);
+            game.scale.resize(container.clientWidth, container.clientHeight);
         });
     </script>
 </body>
