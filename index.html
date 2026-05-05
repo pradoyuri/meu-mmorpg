@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reinos de Éter | MMORPG</title>
+    <!-- Bibliotecas de Peso -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; background: #0a0a0a; overflow: hidden; font-family: 'Inter', sans-serif; }
+        canvas { box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .ui-overlay { pointer-events: none; }
+        .interactive { pointer-events: auto; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Interface Imersiva (UI) -->
+    <div class="fixed inset-0 ui-overlay z-10 flex flex-col justify-between p-6">
+        
+        <!-- Topo: Status do Player -->
+        <div class="flex justify-between items-start">
+            <div class="glass p-4 rounded-lg w-64 interactive">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
+                    <div>
+                        <h2 class="text-white font-bold text-sm" id="player-name">Yuri, o Arcanista</h2>
+                        <p class="text-blue-400 text-xs font-mono">Nível 15 - Mago</p>
+                    </div>
+                </div>
+                <!-- Barras -->
+                <div class="space-y-2">
+                    <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-red-500 h-full" style="width: 80%"></div>
+                    </div>
+                    <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-500 h-full" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Mapa / Eventos -->
+            <div class="glass p-3 rounded-lg text-white text-xs interactive">
+                <p class="text-yellow-400 animate-pulse">● EVENTO: Invasão em 05:00</p>
+            </div>
+        </div>
+
+        <!-- Base: Chat e Habilidades -->
+        <div class="flex justify-between items-end">
+            <!-- Chat -->
+            <div class="glass w-80 h-40 rounded-lg p-3 text-white text-xs overflow-y-auto interactive">
+                <p><span class="text-gray-400">[Global]</span> <span class="text-green-400">LadinoX:</span> Alguém para Raid?</p>
+                <p><span class="text-gray-400">[Global]</span> <span class="text-blue-400">MagoReal:</span> Vendo poções de mana!</p>
+            </div>
+
+            <!-- Hotbar de Habilidades -->
+            <div class="flex gap-2 pb-2 interactive">
+                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-blue-500 hover:scale-110 transition cursor-pointer">Q</div>
+                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-red-500 hover:scale-110 transition cursor-pointer">W</div>
+                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-yellow-500 hover:scale-110 transition cursor-pointer">E</div>
+                <div class="w-14 h-14 glass rounded-xl flex items-center justify-center text-white border-b-4 border-purple-500 hover:scale-110 transition cursor-pointer">R</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- O JOGO (MOTOR PHASER) -->
+    <script>
+        const config = {
+            type: Phaser.AUTO,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            physics: {
+                default: 'arcade',
+                arcade: { gravity: { y: 0 }, debug: false }
+            },
+            scene: { preload: preload, create: create, update: update }
+        };
+
+        const game = new Phaser.Game(config);
+        let player;
+        let cursors;
+
+        function preload() {
+            // Placeholder de imagens (No futuro você troca pelos seus assets)
+            this.load.image('tiles', 'https://labs.phaser.io/assets/tilemaps/tiles/catastrophi_tiles_16.png');
+            this.load.spritesheet('player', 'https://labs.phaser.io/assets/sprites/spaceman.png', { frameWidth: 16, frameHeight: 16 });
+        }
+
+        function create() {
+            // Chão infinito simples
+            const grid = this.add.grid(0, 0, 4000, 4000, 64, 64, 0x1a1a1a).setAltFillStyle(0x161616).setOutlineStyle();
+
+            // O Jogador
+            player = this.physics.add.sprite(window.innerWidth/2, window.innerHeight/2, 'player').setScale(3);
+            player.setCollideWorldBounds(true);
+
+            // Câmera seguindo o player
+            this.cameras.main.startFollow(player, true, 0.05, 0.05);
+            
+            cursors = this.input.keyboard.createCursorKeys();
+
+            // Texto Flutuante
+            this.add.text(player.x - 20, player.y - 40, "Você", { fontSize: '16px', fill: '#fff' });
+        }
+
+        function update() {
+            // Movimentação Fluida
+            player.setVelocity(0);
+
+            if (cursors.left.isDown) player.setVelocityX(-250);
+            else if (cursors.right.isDown) player.setVelocityX(250);
+
+            if (cursors.up.isDown) player.setVelocityY(-250);
+            else if (cursors.down.isDown) player.setVelocityY(250);
+        }
+
+        window.addEventListener('resize', () => {
+            game.scale.resize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
