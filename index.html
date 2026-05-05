@@ -3,203 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reinos de Éter | Pen & Paper</title>
+    <title>Reinos de Éter | Master Build</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        body { margin: 0; background-color: #1a252f; font-family: 'Press Start 2P', cursive; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .wood-panel { background-color: #5d4037; border-top: 6px solid #8d6e63; border-bottom: 6px solid #3e2723; box-shadow: inset 0 30px 40px rgba(0,0,0,0.5); }
-        .wood-frame { background-color: #3e2723; border: 4px solid #1b100c; border-bottom-color: #8d6e63; border-right-color: #8d6e63; }
-        .parchment { background-color: #f4e4bc; color: #3e2723; border: 4px solid #8d6e63; box-shadow: inset 0 0 10px rgba(141, 110, 99, 0.5); }
-        .pixel-btn { background-color: #c62828; color: white; border: 4px solid #ef5350; border-bottom-color: #b71c1c; border-right-color: #b71c1c; text-shadow: 2px 2px 0 #000; cursor: pointer; }
-        .pixel-btn:active { transform: translateY(4px); border-color: #b71c1c; border-bottom-color: #ef5350; border-right-color: #ef5350; }
-        #game-viewport { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        #phaser-canvas-container { border: 12px solid #3e2723; border-radius: 4px; box-shadow: 0 15px 35px rgba(0,0,0,0.9); width: 100%; height: 100%; background-color: #000; }
-        #table-ui { height: 220px; display: flex; padding: 15px 30px; gap: 20px; z-index: 10; }
-        .retro-bar-container { border: 2px solid #000; background-color: #424242; padding: 2px; }
-        .retro-hp-bar { background-color: #e53935; height: 12px; transition: width 0.3s; }
-        .retro-xp-bar { background-color: #4caf50; height: 12px; transition: width 0.3s; }
+        /* ==================== CORE STYLES ==================== */
+        :root {
+            --wood-dark: #3e2723; --wood-mid: #5d4037; --wood-light: #8d6e63;
+            --paper: #f4e4bc; --paper-dark: #d7ccc8;
+            --ui-border: #1b100c; --btn-red: #c62828; --btn-red-hover: #b71c1c;
+        }
+        body { margin: 0; background-color: #1a252f; font-family: 'Press Start 2P', cursive; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
+        
+        /* ==================== LAYOUT PANELS ==================== */
+        #game-viewport { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 10px; position: relative; }
+        #phaser-canvas-container { border: 8px solid var(--wood-dark); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.9); width: 100%; height: 100%; background-color: #000; }
+        #table-ui { height: 280px; display: flex; padding: 15px; gap: 15px; background-color: var(--wood-mid); border-top: 6px solid var(--wood-light); box-shadow: inset 0 30px 40px rgba(0,0,0,0.5); z-index: 10; }
+        
+        /* ==================== COMPONENTS ==================== */
+        .panel-wood { background-color: var(--wood-dark); border: 4px solid var(--ui-border); border-bottom-color: var(--wood-light); border-right-color: var(--wood-light); padding: 10px; }
+        .panel-paper { background-color: var(--paper); color: var(--wood-dark); border: 4px solid var(--wood-light); box-shadow: inset 0 0 15px rgba(141, 110, 99, 0.4); padding: 10px; }
+        
+        /* ==================== BUTTONS & BARS ==================== */
+        .pixel-btn { background-color: var(--btn-red); color: white; border: 4px solid #ef5350; border-bottom-color: var(--btn-red-hover); border-right-color: var(--btn-red-hover); padding: 10px; text-shadow: 2px 2px 0 #000; cursor: pointer; transition: transform 0.1s; font-size: 10px; width: 100%; text-align: center; }
+        .pixel-btn:active { transform: translateY(4px); border-color: var(--btn-red-hover); border-bottom-color: #ef5350; border-right-color: #ef5350; }
+        .pixel-btn:disabled { filter: grayscale(100%); cursor: not-allowed; transform: none; }
+        
+        .bar-bg { border: 2px solid #000; background-color: #424242; padding: 2px; height: 14px; width: 100%; margin-top: 2px; }
+        .bar-fill { height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bar-hp { background-color: #e53935; } .bar-mp { background-color: #1e88e5; } .bar-xp { background-color: #4caf50; }
+
+        /* ==================== INVENTORY GRID ==================== */
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+        .inv-slot { width: 100%; aspect-ratio: 1; background-color: var(--paper-dark); border: 2px solid var(--wood-light); display: flex; justify-content: center; align-items: center; font-size: 8px; cursor: pointer; position: relative; }
+        .inv-slot:hover { border-color: #fff; }
+        .item-qty { position: absolute; bottom: 2px; right: 2px; font-size: 6px; color: #000; font-weight: bold; }
+
+        /* ==================== SCREENS ==================== */
+        #screen-creation { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; }
+        .class-card { border: 4px solid var(--wood-light); padding: 20px; cursor: pointer; text-align: center; background: var(--wood-dark); transition: all 0.2s; width: 200px; }
+        .class-card:hover, .class-card.selected { border-color: #fbbf24; background: var(--wood-mid); transform: scale(1.05); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--paper-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--wood-light); border: 1px solid var(--wood-dark); }
     </style>
 </head>
 <body>
 
+    <!-- SCREEN: CHARACTER CREATION -->
+    <div id="screen-creation">
+        <h1 class="text-3xl text-yellow-500 text-shadow mb-4">CRIE SEU HERÓI</h1>
+        <input type="text" id="input-name" placeholder="NOME DO HERÓI" class="p-3 text-center text-black font-bold outline-none border-4 border-yellow-600 mb-4" maxlength="12">
+        <div class="flex gap-6" id="class-container">
+            <!-- Populated via JS -->
+        </div>
+        <button id="btn-start-game" class="pixel-btn mt-8 w-64 text-xl" style="background-color: #2e7d32; border-color: #4caf50 #1b5e20 #1b5e20 #4caf50;" disabled>INICIAR JORNADA</button>
+    </div>
+
+    <!-- GAME VIEWPORT -->
     <div id="game-viewport">
         <div id="phaser-canvas-container"></div>
     </div>
 
-    <div id="table-ui" class="wood-panel">
-        <!-- Ficha do Personagem Dinâmica -->
-        <div class="parchment p-4 flex flex-col justify-between w-1/4" style="font-size: 10px; line-height: 1.8;">
+    <!-- UI: BOTTOM TABLE -->
+    <div id="table-ui">
+        
+        <!-- COL 1: STATS & EQUIPMENT -->
+        <div class="panel-paper w-1/4 flex flex-col justify-between" style="font-size: 10px; line-height: 1.6;">
             <div>
-                <h2 id="ui-name" class="text-sm border-b-2 border-yellow-800 pb-1 mb-2">NOVATO</h2>
-                <p id="ui-level">NIVEL: 1</p>
-                <p id="ui-class">CLASSE: NENHUMA</p>
+                <div class="flex justify-between items-end border-b-2 border-yellow-800 pb-1 mb-2">
+                    <h2 id="ui-name" class="text-sm font-bold truncate">NOME</h2>
+                    <span id="ui-level" class="text-xs text-blue-800">LVL 1</span>
+                </div>
+                <p id="ui-class" class="text-[8px] text-gray-600 mb-2">CLASSE</p>
+                
+                <div class="flex justify-between text-[8px] mb-1">
+                    <span>ATK: <span id="ui-atk">0</span></span>
+                    <span>DEF: <span id="ui-def">0</span></span>
+                </div>
             </div>
-            <div class="space-y-2">
+
+            <div class="space-y-2 mt-2">
                 <div>
-                    <span id="ui-hp-text" class="text-[8px]">HP 20/20</span>
-                    <div class="retro-bar-container"><div id="ui-hp-bar" class="retro-hp-bar" style="width: 100%"></div></div>
+                    <div class="flex justify-between text-[8px]"><span>HP</span><span id="ui-hp-txt">0/0</span></div>
+                    <div class="bar-bg"><div id="ui-hp-bar" class="bar-fill bar-hp" style="width: 100%"></div></div>
                 </div>
                 <div>
-                    <span id="ui-xp-text" class="text-[8px]">XP 0/100</span>
-                    <div class="retro-bar-container"><div id="ui-xp-bar" class="retro-xp-bar" style="width: 0%"></div></div>
+                    <div class="flex justify-between text-[8px]"><span>MP</span><span id="ui-mp-txt">0/0</span></div>
+                    <div class="bar-bg"><div id="ui-mp-bar" class="bar-fill bar-mp" style="width: 100%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[8px]"><span>XP</span><span id="ui-xp-txt">0/0</span></div>
+                    <div class="bar-bg"><div id="ui-xp-bar" class="bar-fill bar-xp" style="width: 0%"></div></div>
                 </div>
             </div>
         </div>
 
-        <!-- Botões de Ação -->
-        <div class="wood-frame p-4 flex-grow flex flex-col items-center justify-center gap-4">
-            <h3 class="text-xs text-yellow-500 text-shadow">AÇÕES DE TURNO</h3>
-            <div class="flex gap-4">
-                <button id="btn-atk" class="pixel-btn w-16 h-16 flex items-center justify-center text-xs">ATK</button>
+        <!-- COL 2: INVENTORY & BAG -->
+        <div class="panel-wood w-1/4 flex flex-col">
+            <h3 class="text-[10px] text-yellow-500 text-center mb-1">MOCHILA</h3>
+            <div id="inventory-grid" class="inv-grid flex-grow">
+                <!-- Slots gerados via JS -->
             </div>
         </div>
 
-        <!-- Chat / Log do Mestre -->
-        <div id="chat-log" class="parchment p-3 w-1/3 overflow-y-auto" style="font-size: 9px; line-height: 1.5; display: flex; flex-direction: column-reverse;">
-            <p class="text-red-800 font-bold mb-2">>> DIÁRIO DO MESTRE</p>
-            <p>Bem-vindo aos Reinos de Éter. Um Goblin selvagem bloqueia seu caminho!</p>
+        <!-- COL 3: COMBAT & ACTION MENU -->
+        <div class="panel-wood flex-grow flex flex-col items-center justify-center gap-3">
+            <h3 class="text-xs text-yellow-500">AÇÕES</h3>
+            <div class="grid grid-cols-2 gap-3 w-full px-4">
+                <button id="btn-atk" class="pixel-btn h-12">ATACAR [Q]</button>
+                <button id="btn-skill" class="pixel-btn h-12" style="background-color: #1565c0; border-color: #1976d2 #0d47a1 #0d47a1 #1976d2;">MAGIA [W]</button>
+                <button id="btn-heal" class="pixel-btn h-12" style="background-color: #2e7d32; border-color: #4caf50 #1b5e20 #1b5e20 #4caf50;">POÇÃO [E]</button>
+                <button id="btn-rest" class="pixel-btn h-12" style="background-color: #f57f17; border-color: #fbc02d #f57f17 #f57f17 #fbc02d;">DESCANSAR</button>
+            </div>
+        </div>
+
+        <!-- COL 4: MASTER SYSTEM LOG -->
+        <div id="chat-log" class="panel-paper w-1/3 overflow-y-auto" style="font-size: 9px; line-height: 1.4; display: flex; flex-direction: column-reverse;">
+            <!-- Logs gerados dinamicamente no topo -->
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MASTER ARCHITECTURE SCRIPT -->
+    <!-- ========================================== -->
     <script>
-        // --- SISTEMA DE DADOS DO JOGADOR ---
-        let playerStats = {
-            level: 1,
-            xp: 0,
-            xpNeeded: 50,
-            maxHp: 20,
-            hp: 20,
-            damage: 5
+        /**
+         * ENGINE DATA DICTIONARY
+         * Define as regras de negócio, balanceamento e assets do jogo.
+         */
+        const GAME_DATA = {
+            classes: {
+                guerreiro: { name: 'Guerreiro', color: 0xe53935, baseHp: 150, baseMp: 30, baseAtk: 12, baseDef: 8, growth: { hp: 15, atk: 3 } },
+                mago: { name: 'Mago', color: 0x1e88e5, baseHp: 70, baseMp: 120, baseAtk: 5, baseDef: 3, growth: { hp: 5, atk: 1 } },
+                ladino: { name: 'Ladino', color: 0x43a047, baseHp: 100, baseMp: 50, baseAtk: 15, baseDef: 4, growth: { hp: 8, atk: 4 } },
+                curador: { name: 'Curador', color: 0xfdd835, baseHp: 90, baseMp: 100, baseAtk: 4, baseDef: 5, growth: { hp: 8, atk: 1 } }
+            },
+            mobs: [
+                { name: 'Goblin Fraco', hp: 30, atk: 4, xp: 20, color: 0x8bc34a, boss: false },
+                { name: 'Lobo Selvagem', hp: 55, atk: 8, xp: 45, color: 0x757575, boss: false },
+                { name: 'Orc Guerreiro', hp: 120, atk: 15, xp: 90, color: 0x388e3c, boss: false },
+                { name: 'DRAGÃO NEGRO (BOSS)', hp: 500, atk: 35, xp: 500, color: 0x212121, boss: true, scale: 2.5 }
+            ],
+            items: {
+                'pot_hp': { name: 'Poção HP', type: 'consumable', value: 50, icon: '❤️' },
+                'pot_mp': { name: 'Poção MP', type: 'consumable', value: 30, icon: '🧪' },
+                'loot_gold': { name: 'Ouro', type: 'resource', value: 1, icon: '🪙' }
+            }
         };
 
-        // Função para atualizar a Interface HTML via JavaScript
-        function updateUI() {
-            document.getElementById('ui-level').innerText = `NIVEL: ${playerStats.level}`;
-            document.getElementById('ui-hp-text').innerText = `HP ${playerStats.hp}/${playerStats.maxHp}`;
-            document.getElementById('ui-hp-bar').style.width = `${(playerStats.hp / playerStats.maxHp) * 100}%`;
-            document.getElementById('ui-xp-text').innerText = `XP ${playerStats.xp}/${playerStats.xpNeeded}`;
-            document.getElementById('ui-xp-bar').style.width = `${(playerStats.xp / playerStats.xpNeeded) * 100}%`;
-        }
-
-        // Função para escrever no Chat
-        function logChat(message, color = "black") {
-            const chatLog = document.getElementById('chat-log');
-            const p = document.createElement('p');
-            p.style.color = color;
-            p.innerText = message;
-            chatLog.prepend(p); // Adiciona no topo
-        }
-
-        // --- MOTOR PHASER ---
-        const container = document.getElementById('phaser-canvas-container');
-        const config = {
-            type: Phaser.AUTO,
-            parent: 'phaser-canvas-container',
-            width: container.clientWidth,
-            height: container.clientHeight,
-            physics: { default: 'arcade', arcade: { debug: false } },
-            scene: { create: create, update: update }
+        /**
+         * STATE MANAGER (Player & Game State)
+         */
+        const STATE = {
+            player: {
+                name: '', className: '', level: 1, xp: 0, xpNeeded: 100,
+                stats: { hp: 0, maxHp: 0, mp: 0, maxMp: 0, atk: 0, def: 0 },
+                inventory: { 'pot_hp': 3 }, // Start with 3 potions
+                position: { x: 0, y: 0 }
+            },
+            combat: {
+                targetAlive: false,
+                currentMobIndex: 0,
+                mobsKilled: 0
+            }
         };
 
-        const game = new Phaser.Game(config);
-        let playerToken;
-        let goblinToken;
-        let cursors;
+        /**
+         * UI CONTROLLER
+         * Responsável por sincronizar o HTML com o STATE.
+         */
+        const UI = {
+            log(msg, color = "#000") {
+                const chat = document.getElementById('chat-log');
+                const line = document.createElement('div');
+                line.style.color = color;
+                line.style.marginBottom = "4px";
+                line.innerHTML = `> ${msg}`;
+                chat.prepend(line);
+            },
+            updateStats() {
+                const p = STATE.player;
+                document.getElementById('ui-name').innerText = p.name;
+                document.getElementById('ui-level').innerText = `LVL ${p.level}`;
+                document.getElementById('ui-class').innerText = GAME_DATA.classes[p.className].name.toUpperCase();
+                
+                document.getElementById('ui-atk').innerText = p.stats.atk;
+                document.getElementById('ui-def').innerText = p.stats.def;
 
-        function create() {
-            this.cameras.main.setBackgroundColor('#f4e4bc');
+                const updateBar = (id, current, max) => {
+                    document.getElementById(`ui-${id}-txt`).innerText = `${Math.floor(current)}/${max}`;
+                    document.getElementById(`ui-${id}-bar`).style.width = `${Math.max(0, Math.min(100, (current/max)*100))}%`;
+                };
+
+                updateBar('hp', p.stats.hp, p.stats.maxHp);
+                updateBar('mp', p.stats.mp, p.stats.maxMp);
+                updateBar('xp', p.xp, p.xpNeeded);
+            },
+            updateInventory() {
+                const grid = document.getElementById('inventory-grid');
+                grid.innerHTML = '';
+                for (let i = 0; i < 12; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'inv-slot';
+                    const itemKeys = Object.keys(STATE.player.inventory);
+                    if (i < itemKeys.length) {
+                        const key = itemKeys[i];
+                        const qty = STATE.player.inventory[key];
+                        const itemData = GAME_DATA.items[key];
+                        slot.innerHTML = `<span class="text-xl">${itemData.icon}</span><span class="item-qty">${qty}</span>`;
+                        slot.title = itemData.name;
+                        // Use potion on click
+                        if(itemData.type === 'consumable') {
+                            slot.onclick = () => CombatSystem.useItem(key);
+                        }
+                    }
+                    grid.appendChild(slot);
+                }
+            }
+        };
+
+        /**
+         * CORE LOGIC: COMBAT & PROGRESSION
+         */
+        const CombatSystem = {
+            attack() {
+                if (!STATE.combat.targetAlive) return UI.log("Não há inimigos por perto.", "#757575");
+                
+                // Player Attack
+                const dmg = Math.max(1, STATE.player.stats.atk + Math.floor(Math.random() * 5));
+                phaserScene.damageMob(dmg);
+                UI.log(`Você causou ${dmg} de dano!`, "#1565c0");
+
+                // Mob Attack Response
+                if (STATE.combat.targetAlive) {
+                    setTimeout(() => {
+                        const mobData = phaserScene.currentMob.data;
+                        const mobDmg = Math.max(1, mobData.atk - STATE.player.stats.def + Math.floor(Math.random() * 3));
+                        STATE.player.stats.hp -= mobDmg;
+                        UI.log(`${mobData.name} atacou causando ${mobDmg} de dano.`, "#c62828");
+                        
+                        // Shake camera on hit
+                        phaserScene.cameras.main.shake(100, 0.01);
+
+                        if (STATE.player.stats.hp <= 0) {
+                            UI.log("VOCÊ MORREU! Fim de jogo.", "#b71c1c");
+                            document.getElementById('screen-creation').style.display = 'flex'; // Reset (simplified)
+                        }
+                        UI.updateStats();
+                    }, 500); // Mob delay
+                }
+            },
+            useItem(itemKey) {
+                if (!STATE.player.inventory[itemKey] || STATE.player.inventory[itemKey] <= 0) return;
+                const item = GAME_DATA.items[itemKey];
+                
+                if (itemKey === 'pot_hp') {
+                    STATE.player.stats.hp = Math.min(STATE.player.stats.maxHp, STATE.player.stats.hp + item.value);
+                    UI.log(`Usou Poção: Curou ${item.value} HP.`, "#4caf50");
+                }
+                
+                STATE.player.inventory[itemKey]--;
+                if(STATE.player.inventory[itemKey] === 0) delete STATE.player.inventory[itemKey];
+                
+                UI.updateStats();
+                UI.updateInventory();
+            },
+            reward(mob) {
+                STATE.combat.mobsKilled++;
+                
+                // XP System
+                STATE.player.xp += mob.xp;
+                UI.log(`Derrotou ${mob.name}! +${mob.xp} XP`, "#fbc02d");
+
+                // Loot System (50% chance for potion, 100% for gold)
+                if(!STATE.player.inventory['loot_gold']) STATE.player.inventory['loot_gold'] = 0;
+                const goldYield = Math.floor(Math.random() * 10) + (mob.boss ? 50 : 1);
+                STATE.player.inventory['loot_gold'] += goldYield;
+                UI.log(`Drop: ${goldYield} Ouro`, "#fbc02d");
+
+                if(Math.random() > 0.5) {
+                    STATE.player.inventory['pot_hp'] = (STATE.player.inventory['pot_hp'] || 0) + 1;
+                    UI.log(`Drop: 1x Poção HP`, "#fbc02d");
+                }
+
+                // Level Up Logic
+                if (STATE.player.xp >= STATE.player.xpNeeded) {
+                    STATE.player.level++;
+                    STATE.player.xp -= STATE.player.xpNeeded;
+                    STATE.player.xpNeeded = Math.floor(STATE.player.xpNeeded * 1.5);
+                    
+                    const growth = GAME_DATA.classes[STATE.player.className].growth;
+                    STATE.player.stats.maxHp += growth.hp;
+                    STATE.player.stats.hp = STATE.player.stats.maxHp;
+                    STATE.player.stats.atk += growth.atk;
+                    
+                    UI.log(`[LEVEL UP] Você atingiu o Nível ${STATE.player.level}!`, "#9c27b0");
+                }
+                
+                UI.updateStats();
+                UI.updateInventory();
+                
+                // Spawn next mob after delay
+                setTimeout(() => phaserScene.spawnMob(), 1500);
+            }
+        };
+
+        /**
+         * CHARACTER CREATION LOGIC
+         */
+        let selectedClass = null;
+        const initCreationScreen = () => {
+            const container = document.getElementById('class-container');
+            Object.keys(GAME_DATA.classes).forEach(key => {
+                const c = GAME_DATA.classes[key];
+                const div = document.createElement('div');
+                div.className = 'class-card';
+                div.innerHTML = `
+                    <div class="w-12 h-12 mx-auto mb-2" style="background-color: #${c.color.toString(16)}"></div>
+                    <h3 class="text-yellow-500 text-sm mb-2">${c.name}</h3>
+                    <p class="text-[8px] text-gray-300">HP: ${c.baseHp} | ATK: ${c.baseAtk}</p>
+                `;
+                div.onclick = () => {
+                    document.querySelectorAll('.class-card').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selectedClass = key;
+                    validateStart();
+                };
+                container.appendChild(div);
+            });
+
+            document.getElementById('input-name').addEventListener('input', validateStart);
             
-            // Grid de fundo
+            document.getElementById('btn-start-game').onclick = () => {
+                // Set initial state
+                STATE.player.name = document.getElementById('input-name').value.toUpperCase();
+                STATE.player.className = selectedClass;
+                
+                const cData = GAME_DATA.classes[selectedClass];
+                STATE.player.stats = {
+                    hp: cData.baseHp, maxHp: cData.baseHp,
+                    mp: cData.baseMp, maxMp: cData.baseMp,
+                    atk: cData.baseAtk, def: cData.baseDef
+                };
+
+                document.getElementById('screen-creation').style.display = 'none';
+                UI.updateStats();
+                UI.updateInventory();
+                UI.log(`A jornada de ${STATE.player.name} começou...`, "#000");
+                
+                // Initialize Phaser Game
+                initPhaserEngine();
+            };
+        };
+
+        const validateStart = () => {
+            const name = document.getElementById('input-name').value;
+            const btn = document.getElementById('btn-start-game');
+            btn.disabled = !(name.length > 2 && selectedClass);
+        };
+
+        /**
+         * PHASER 3 ENGINE SETTINGS
+         */
+        let phaserScene;
+        const initPhaserEngine = () => {
+            const container = document.getElementById('phaser-canvas-container');
+            const config = {
+                type: Phaser.AUTO, parent: 'phaser-canvas-container',
+                width: container.clientWidth, height: container.clientHeight,
+                physics: { default: 'arcade', arcade: { debug: false } },
+                scene: { create: phaserCreate, update: phaserUpdate }
+            };
+            new Phaser.Game(config);
+        };
+
+        function phaserCreate() {
+            phaserScene = this;
+            this.cameras.main.setBackgroundColor('#d7ccc8'); // Paper dark
+            
+            // Grid de Batalha Tático
             const grid = this.add.graphics();
-            grid.lineStyle(1, 0x8d6e63, 0.3);
-            for(let i = 0; i < 2000; i += 40) {
-                grid.moveTo(i, 0); grid.lineTo(i, 2000);
-                grid.moveTo(0, i); grid.lineTo(2000, i);
+            grid.lineStyle(2, 0x8d6e63, 0.4);
+            for(let i = 0; i < 3000; i += 40) {
+                grid.moveTo(i, 0); grid.lineTo(i, 3000);
+                grid.moveTo(0, i); grid.lineTo(3000, i);
             }
             grid.strokePath();
 
-            // Cria o Token do Jogador (Azul)
+            // Player Token Maker
+            const pColor = GAME_DATA.classes[STATE.player.className].color;
             const pt = this.add.graphics();
-            pt.fillStyle(0x1a1a1a, 1); pt.fillCircle(20, 20, 18);
-            pt.fillStyle(0x1e88e5, 1); pt.fillRect(10, 10, 20, 20);
-            pt.generateTexture('player_sprite', 40, 40);
+            pt.fillStyle(0x000000, 1); pt.fillCircle(20, 20, 18); // Base
+            pt.fillStyle(pColor, 1); pt.fillRect(10, 10, 20, 20); // Corp
+            pt.generateTexture('tex_player', 40, 40);
             pt.destroy();
 
-            // Cria o Token do Goblin (Verde)
-            const gt = this.add.graphics();
-            gt.fillStyle(0x1a1a1a, 1); gt.fillCircle(20, 20, 18);
-            gt.fillStyle(0x43a047, 1); gt.fillRect(10, 10, 20, 20);
-            gt.fillStyle(0xb71c1c, 1); gt.fillRect(14, 14, 12, 12); // Olho vermelho
-            gt.generateTexture('goblin_sprite', 40, 40);
-            gt.destroy();
-
-            // Adiciona no mapa
-            playerToken = this.physics.add.sprite(config.width/2, config.height/2, 'player_sprite');
+            // Init Player Sprite
+            this.player = this.physics.add.sprite(config.width/2, config.height/2, 'tex_player');
+            this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
+            this.cursors = this.input.keyboard.createCursorKeys();
             
-            // Spawna o Goblin perto do jogador
-            goblinToken = this.physics.add.sprite(playerToken.x + 100, playerToken.y, 'goblin_sprite');
-            goblinToken.hp = 15;
+            // Helper Keys
+            this.input.keyboard.on('keydown-Q', () => document.getElementById('btn-atk').click());
+            this.input.keyboard.on('keydown-E', () => CombatSystem.useItem('pot_hp'));
 
-            this.cameras.main.startFollow(playerToken, true, 0.1, 0.1);
-            cursors = this.input.keyboard.createCursorKeys();
+            // Mob Management Variables
+            this.currentMob = null;
+            this.mobHpText = null;
 
-            // --- LÓGICA DO BOTÃO DE ATAQUE ---
-            document.getElementById('btn-atk').addEventListener('click', () => {
-                // Calcula distância entre jogador e goblin
-                const distance = Phaser.Math.Distance.Between(playerToken.x, playerToken.y, goblinToken.x, goblinToken.y);
+            // Engine API for Logic Module
+            this.spawnMob = () => {
+                if(this.currentMob) this.currentMob.destroy();
+                if(this.mobHpText) this.mobHpText.destroy();
+
+                // Determine Boss (Every 5 kills)
+                const isBossSpawn = (STATE.combat.mobsKilled + 1) % 5 === 0;
+                let mobData;
                 
-                if (distance > 60) {
-                    logChat("* Você balança a arma no ar. O alvo está muito longe!", "gray");
-                    return;
+                if (isBossSpawn) {
+                    mobData = GAME_DATA.mobs[3]; // Dragão
+                    UI.log("!!! UM CHEFÃO APARECEU !!!", "#b71c1c");
+                    this.cameras.main.flash(500, 255, 0, 0);
+                } else {
+                    // Random standard mob based on level
+                    const maxIndex = Math.min(2, Math.floor(STATE.player.level / 2));
+                    mobData = GAME_DATA.mobs[Math.floor(Math.random() * (maxIndex + 1))];
                 }
 
-                // Causa dano
-                goblinToken.hp -= playerStats.damage;
-                logChat(`> Você atacou o Goblin causando ${playerStats.damage} de dano!`, "blue");
+                // Generate Mob Texture dynamically based on Data
+                const mt = this.add.graphics();
+                mt.fillStyle(0x000000, 1); mt.fillCircle(20, 20, 18);
+                mt.fillStyle(mobData.color, 1); mt.fillRect(10, 10, 20, 20);
+                mt.fillStyle(0xffffff, 1); mt.fillCircle(15, 15, 4); mt.fillCircle(25, 15, 4); // Eyes
+                mt.generateTexture('tex_mob_temp', 40, 40);
+                mt.destroy();
 
-                // Efeito visual de tremor no Goblin
-                this.tweens.add({ targets: goblinToken, x: goblinToken.x + 5, yoyo: true, duration: 50, repeat: 3 });
+                // Position slightly away from player
+                const spawnX = this.player.x + Phaser.Math.Between(-150, 150);
+                const spawnY = this.player.y + Phaser.Math.Between(-150, 150);
 
-                // Verifica se o Goblin morreu
-                if (goblinToken.hp <= 0) {
-                    logChat("+++ VOCÊ DERROTOU O GOBLIN! + 25 XP", "green");
-                    playerStats.xp += 25;
-                    
-                    // Verifica Level Up
-                    if (playerStats.xp >= playerStats.xpNeeded) {
-                        playerStats.level++;
-                        playerStats.xp = 0;
-                        playerStats.xpNeeded = Math.floor(playerStats.xpNeeded * 1.5);
-                        playerStats.maxHp += 10;
-                        playerStats.hp = playerStats.maxHp;
-                        playerStats.damage += 3;
-                        logChat(`!!! LEVEL UP !!! Você agora é Nível ${playerStats.level}!`, "purple");
-                    }
+                this.currentMob = this.physics.add.sprite(spawnX, spawnY, 'tex_mob_temp');
+                if (mobData.scale) this.currentMob.setScale(mobData.scale);
+                
+                // Attach State to Sprite
+                this.currentMob.data = { ...mobData };
+                this.currentMob.currentHp = mobData.hp;
 
-                    updateUI();
+                // Floating HP Text
+                this.mobHpText = this.add.text(spawnX, spawnY - 30, `${this.currentMob.currentHp}/${mobData.hp}`, {
+                    fontFamily: 'Press Start 2P', fontSize: '8px', fill: '#ff0000'
+                }).setOrigin(0.5);
 
-                    // Respawn do Goblin em outro lugar
-                    goblinToken.x = playerToken.x + Phaser.Math.Between(-150, 150);
-                    goblinToken.y = playerToken.y + Phaser.Math.Between(-150, 150);
-                    goblinToken.hp = 15 + (playerStats.level * 5); // Fica mais forte
+                STATE.combat.targetAlive = true;
+                UI.log(`Um ${mobData.name} surgiu!`, "#000");
+            };
+
+            this.damageMob = (amount) => {
+                if(!this.currentMob) return;
+                
+                this.currentMob.currentHp -= amount;
+                this.mobHpText.setText(`${Math.max(0, this.currentMob.currentHp)}/${this.currentMob.data.hp}`);
+                
+                // Damage Text Tween
+                const dmgTxt = this.add.text(this.currentMob.x, this.currentMob.y, `-${amount}`, { fontFamily: 'Press Start 2P', fontSize: '14px', fill: '#ffffff', stroke: '#000', strokeThickness: 4 });
+                this.tweens.add({ targets: dmgTxt, y: this.currentMob.y - 50, alpha: 0, duration: 800, onComplete: () => dmgTxt.destroy() });
+                
+                // Shake mob
+                this.tweens.add({ targets: this.currentMob, x: this.currentMob.x + 5, yoyo: true, duration: 50, repeat: 2 });
+
+                if (this.currentMob.currentHp <= 0) {
+                    STATE.combat.targetAlive = false;
+                    const mobDefeated = this.currentMob.data;
+                    this.currentMob.destroy();
+                    this.mobHpText.destroy();
+                    CombatSystem.reward(mobDefeated);
                 }
-            });
+            };
 
-            updateUI(); // Chama a primeira vez para arrumar a tela
+            // Hook HTML Buttons
+            document.getElementById('btn-atk').onclick = CombatSystem.attack;
+            
+            // First spawn
+            setTimeout(() => this.spawnMob(), 1000);
         }
 
-        function update() {
-            playerToken.setVelocity(0);
-            if (cursors.left.isDown) playerToken.setVelocityX(-200);
-            else if (cursors.right.isDown) playerToken.setVelocityX(200);
-            if (cursors.up.isDown) playerToken.setVelocityY(-200);
-            else if (cursors.down.isDown) playerToken.setVelocityY(200);
+        function phaserUpdate() {
+            if(!this.player) return;
+            this.player.setVelocity(0);
+            const speed = 250;
+
+            if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
+            else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
+            if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
+            else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
+
+            // Sync Mob HP Text position
+            if (this.currentMob && this.mobHpText && STATE.combat.targetAlive) {
+                const offsetY = this.currentMob.data.boss ? 60 : 30;
+                this.mobHpText.setPosition(this.currentMob.x, this.currentMob.y - offsetY);
+            }
         }
 
-        window.addEventListener('resize', () => { game.scale.resize(container.clientWidth, container.clientHeight); });
+        // ==================== INITIALIZATION ====================
+        window.onload = () => {
+            initCreationScreen();
+        };
+
+        // Resize Handling
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('phaser-canvas-container');
+            if(phaserScene && phaserScene.scale) {
+                phaserScene.scale.resize(container.clientWidth, container.clientHeight);
+            }
+        });
     </script>
 </body>
 </html>
