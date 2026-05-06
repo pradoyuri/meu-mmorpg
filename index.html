@@ -1,526 +1,395 @@
+import base64
+
+# O código será gerado via Python para garantir integridade de formatação e entrega direta
+html_content = """
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reinos de Éter | Master Build</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
+    <title>Batataria Real - O Melhor Delivery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ==================== CORE STYLES ==================== */
         :root {
-            --wood-dark: #3e2723; --wood-mid: #5d4037; --wood-light: #8d6e63;
-            --paper: #f4e4bc; --paper-dark: #d7ccc8;
-            --ui-border: #1b100c; --btn-red: #c62828; --btn-red-hover: #b71c1c;
+            --primary: #F87E23; /* Flame-Orange */
+            --secondary: #8C6F5A; /* Burgundy-Brown */
+            --dark: #4A4A4A; /* Charcoal-Gray */
+            --accent: #D6A238; /* Potato-Gold */
+            --bg: #F9F3E0; /* Cream */
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        body { margin: 0; background-color: #1a252f; font-family: 'Press Start 2P', cursive; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
-        
-        /* ==================== LAYOUT PANELS ==================== */
-        #game-viewport { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 10px; position: relative; }
-        #phaser-canvas-container { border: 8px solid var(--wood-dark); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.9); width: 100%; height: 100%; background-color: #000; }
-        #table-ui { height: 280px; display: flex; padding: 15px; gap: 15px; background-color: var(--wood-mid); border-top: 6px solid var(--wood-light); box-shadow: inset 0 30px 40px rgba(0,0,0,0.5); z-index: 10; }
-        
-        /* ==================== COMPONENTS ==================== */
-        .panel-wood { background-color: var(--wood-dark); border: 4px solid var(--ui-border); border-bottom-color: var(--wood-light); border-right-color: var(--wood-light); padding: 10px; }
-        .panel-paper { background-color: var(--paper); color: var(--wood-dark); border: 4px solid var(--wood-light); box-shadow: inset 0 0 15px rgba(141, 110, 99, 0.4); padding: 10px; }
-        
-        /* ==================== BUTTONS & BARS ==================== */
-        .pixel-btn { background-color: var(--btn-red); color: white; border: 4px solid #ef5350; border-bottom-color: var(--btn-red-hover); border-right-color: var(--btn-red-hover); padding: 10px; text-shadow: 2px 2px 0 #000; cursor: pointer; transition: transform 0.1s; font-size: 10px; width: 100%; text-align: center; }
-        .pixel-btn:active { transform: translateY(4px); border-color: var(--btn-red-hover); border-bottom-color: #ef5350; border-right-color: #ef5350; }
-        .pixel-btn:disabled { filter: grayscale(100%); cursor: not-allowed; transform: none; }
-        
-        .bar-bg { border: 2px solid #000; background-color: #424242; padding: 2px; height: 14px; width: 100%; margin-top: 2px; }
-        .bar-fill { height: 100%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bar-hp { background-color: #e53935; } .bar-mp { background-color: #1e88e5; } .bar-xp { background-color: #4caf50; }
 
-        /* ==================== INVENTORY GRID ==================== */
-        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
-        .inv-slot { width: 100%; aspect-ratio: 1; background-color: var(--paper-dark); border: 2px solid var(--wood-light); display: flex; justify-content: center; align-items: center; font-size: 8px; cursor: pointer; position: relative; }
-        .inv-slot:hover { border-color: #fff; }
-        .item-qty { position: absolute; bottom: 2px; right: 2px; font-size: 6px; color: #000; font-weight: bold; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
 
-        /* ==================== SCREENS ==================== */
-        #screen-creation { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; }
-        .class-card { border: 4px solid var(--wood-light); padding: 20px; cursor: pointer; text-align: center; background: var(--wood-dark); transition: all 0.2s; width: 200px; }
-        .class-card:hover, .class-card.selected { border-color: #fbbf24; background: var(--wood-mid); transform: scale(1.05); }
+        body { background-color: var(--bg); color: var(--dark); line-height: 1.6; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--paper-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--wood-light); border: 1px solid var(--wood-dark); }
+        /* Header & Status */
+        header {
+            background: var(--dark);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { width: 80px; margin-bottom: 10px; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .open { background: #2ecc71; color: white; }
+        .closed { background: #e74c3c; color: white; }
+
+        .delivery-info {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        /* Menu Section */
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 25px 0 15px;
+            color: var(--secondary);
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .product-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .product-card:active { transform: scale(0.98); }
+
+        .product-info h3 { font-size: 1rem; color: var(--dark); }
+        .product-info p { font-size: 0.85rem; color: #777; margin: 4px 0; }
+        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Cart Logic */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: 15px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .btn-checkout {
+            background: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modal Checkout */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .order-summary {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; }
+
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- SCREEN: CHARACTER CREATION -->
-    <div id="screen-creation">
-        <h1 class="text-3xl text-yellow-500 text-shadow mb-4">CRIE SEU HERÓI</h1>
-        <input type="text" id="input-name" placeholder="NOME DO HERÓI" class="p-3 text-center text-black font-bold outline-none border-4 border-yellow-600 mb-4" maxlength="12">
-        <div class="flex gap-6" id="class-container">
-            <!-- Populated via JS -->
-        </div>
-        <button id="btn-start-game" class="pixel-btn mt-8 w-64 text-xl" style="background-color: #2e7d32; border-color: #4caf50 #1b5e20 #1b5e20 #4caf50;" disabled>INICIAR JORNADA</button>
+<header>
+    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt="Logo" class="logo">
+    <h1>Batataria Real</h1>
+    <div id="status-badge" class="status-badge closed">Verificando...</div>
+    <div class="delivery-info">
+        <i class="fas fa-motorcycle"></i> Ramos, Olaria, Penha e Bonsucesso<br>
+        <i class="fas fa-clock"></i> 20:00 às 01:00
     </div>
+</header>
 
-    <!-- GAME VIEWPORT -->
-    <div id="game-viewport">
-        <div id="phaser-canvas-container"></div>
+<div class="container">
+    <div class="category-title">A Braba das Batatas (Tradicionais)</div>
+    <div id="menu-tradicionais"></div>
+
+    <div class="category-title">Batatas Recheadas (As Reais)</div>
+    <div id="menu-recheadas"></div>
+</div>
+
+<div id="cart-bar" class="cart-bar">
+    <div>
+        <span id="cart-count">0</span> itens no carrinho<br>
+        <strong>Total: <span id="cart-total">R$ 0,00</span></strong>
     </div>
+    <a href="#" class="btn-checkout" onclick="openCheckout()">
+        Finalizar Pedido <i class="fas fa-chevron-right"></i>
+    </a>
+</div>
 
-    <!-- UI: BOTTOM TABLE -->
-    <div id="table-ui">
+<div id="modal-checkout" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeCheckout()">&times;</span>
+        <h2>Finalizar Pedido</h2>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Preencha os dados para envio via WhatsApp</p>
         
-        <!-- COL 1: STATS & EQUIPMENT -->
-        <div class="panel-paper w-1/4 flex flex-col justify-between" style="font-size: 10px; line-height: 1.6;">
-            <div>
-                <div class="flex justify-between items-end border-b-2 border-yellow-800 pb-1 mb-2">
-                    <h2 id="ui-name" class="text-sm font-bold truncate">NOME</h2>
-                    <span id="ui-level" class="text-xs text-blue-800">LVL 1</span>
-                </div>
-                <p id="ui-class" class="text-[8px] text-gray-600 mb-2">CLASSE</p>
-                
-                <div class="flex justify-between text-[8px] mb-1">
-                    <span>ATK: <span id="ui-atk">0</span></span>
-                    <span>DEF: <span id="ui-def">0</span></span>
-                </div>
+        <div class="order-summary" id="order-summary">
             </div>
 
-            <div class="space-y-2 mt-2">
-                <div>
-                    <div class="flex justify-between text-[8px]"><span>HP</span><span id="ui-hp-txt">0/0</span></div>
-                    <div class="bar-bg"><div id="ui-hp-bar" class="bar-fill bar-hp" style="width: 100%"></div></div>
-                </div>
-                <div>
-                    <div class="flex justify-between text-[8px]"><span>MP</span><span id="ui-mp-txt">0/0</span></div>
-                    <div class="bar-bg"><div id="ui-mp-bar" class="bar-fill bar-mp" style="width: 100%"></div></div>
-                </div>
-                <div>
-                    <div class="flex justify-between text-[8px]"><span>XP</span><span id="ui-xp-txt">0/0</span></div>
-                    <div class="bar-bg"><div id="ui-xp-bar" class="bar-fill bar-xp" style="width: 0%"></div></div>
-                </div>
-            </div>
+        <div class="form-group">
+            <label>Seu Nome</label>
+            <input type="text" id="nome" placeholder="Ex: João Silva">
+        </div>
+        
+        <div class="form-group">
+            <label>Endereço de Entrega</label>
+            <input type="text" id="endereco" placeholder="Rua, número e bairro">
         </div>
 
-        <!-- COL 2: INVENTORY & BAG -->
-        <div class="panel-wood w-1/4 flex flex-col">
-            <h3 class="text-[10px] text-yellow-500 text-center mb-1">MOCHILA</h3>
-            <div id="inventory-grid" class="inv-grid flex-grow">
-                <!-- Slots gerados via JS -->
-            </div>
+        <div class="form-group">
+            <label>Bairro</label>
+            <select id="bairro">
+                <option value="Ramos">Ramos</option>
+                <option value="Olaria">Olaria</option>
+                <option value="Penha">Penha</option>
+                <option value="Bonsucesso">Bonsucesso</option>
+            </select>
         </div>
 
-        <!-- COL 3: COMBAT & ACTION MENU -->
-        <div class="panel-wood flex-grow flex flex-col items-center justify-center gap-3">
-            <h3 class="text-xs text-yellow-500">AÇÕES</h3>
-            <div class="grid grid-cols-2 gap-3 w-full px-4">
-                <button id="btn-atk" class="pixel-btn h-12">ATACAR [Q]</button>
-                <button id="btn-skill" class="pixel-btn h-12" style="background-color: #1565c0; border-color: #1976d2 #0d47a1 #0d47a1 #1976d2;">MAGIA [W]</button>
-                <button id="btn-heal" class="pixel-btn h-12" style="background-color: #2e7d32; border-color: #4caf50 #1b5e20 #1b5e20 #4caf50;">POÇÃO [E]</button>
-                <button id="btn-rest" class="pixel-btn h-12" style="background-color: #f57f17; border-color: #fbc02d #f57f17 #f57f17 #fbc02d;">DESCANSAR</button>
-            </div>
+        <div class="form-group">
+            <label>Forma de Pagamento</label>
+            <select id="pagamento">
+                <option value="Pix">Pix (Melhor Opção)</option>
+                <option value="Cartão Débito">Cartão Débito</option>
+                <option value="Cartão Crédito">Cartão Crédito</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
         </div>
 
-        <!-- COL 4: MASTER SYSTEM LOG -->
-        <div id="chat-log" class="panel-paper w-1/3 overflow-y-auto" style="font-size: 9px; line-height: 1.4; display: flex; flex-direction: column-reverse;">
-            <!-- Logs gerados dinamicamente no topo -->
-        </div>
+        <button class="btn-checkout" style="width: 100%; justify-content: center; border: none; cursor: pointer;" onclick="sendWhatsApp()">
+            <i class="fab fa-whatsapp"></i> ENVIAR PEDIDO AGORA
+        </button>
     </div>
+</div>
 
-    <!-- ========================================== -->
-    <!-- MASTER ARCHITECTURE SCRIPT -->
-    <!-- ========================================== -->
-    <script>
-        /**
-         * ENGINE DATA DICTIONARY
-         * Define as regras de negócio, balanceamento e assets do jogo.
-         */
-        const GAME_DATA = {
-            classes: {
-                guerreiro: { name: 'Guerreiro', color: 0xe53935, baseHp: 150, baseMp: 30, baseAtk: 12, baseDef: 8, growth: { hp: 15, atk: 3 } },
-                mago: { name: 'Mago', color: 0x1e88e5, baseHp: 70, baseMp: 120, baseAtk: 5, baseDef: 3, growth: { hp: 5, atk: 1 } },
-                ladino: { name: 'Ladino', color: 0x43a047, baseHp: 100, baseMp: 50, baseAtk: 15, baseDef: 4, growth: { hp: 8, atk: 4 } },
-                curador: { name: 'Curador', color: 0xfdd835, baseHp: 90, baseMp: 100, baseAtk: 4, baseDef: 5, growth: { hp: 8, atk: 1 } }
-            },
-            mobs: [
-                { name: 'Goblin Fraco', hp: 30, atk: 4, xp: 20, color: 0x8bc34a, boss: false },
-                { name: 'Lobo Selvagem', hp: 55, atk: 8, xp: 45, color: 0x757575, boss: false },
-                { name: 'Orc Guerreiro', hp: 120, atk: 15, xp: 90, color: 0x388e3c, boss: false },
-                { name: 'DRAGÃO NEGRO (BOSS)', hp: 500, atk: 35, xp: 500, color: 0x212121, boss: true, scale: 2.5 }
-            ],
-            items: {
-                'pot_hp': { name: 'Poção HP', type: 'consumable', value: 50, icon: '❤️' },
-                'pot_mp': { name: 'Poção MP', type: 'consumable', value: 30, icon: '🧪' },
-                'loot_gold': { name: 'Ouro', type: 'resource', value: 1, icon: '🪙' }
-            }
-        };
+<script>
+    const menu = {
+        tradicionais: [
+            { id: 1, nome: "Batata P (Pequena)", desc: "200g - Crocante com tempero da casa", preco: 14.90 },
+            { id: 2, nome: "Batata M (Média)", desc: "400g - Ideal para um lanche rápido", preco: 22.90 },
+            { id: 3, nome: "Batata G (Grande)", desc: "700g - Para dividir em dois", preco: 34.90 },
+            { id: 4, nome: "Batata Mega (Família)", desc: "1.1kg - O melhor custo benefício!", preco: 49.90 }
+        ],
+        recheadas: [
+            { id: 5, nome: "Cheddar e Bacon Real", desc: "Batata G com muito cheddar e bacon crocante", preco: 42.90 },
+            { id: 6, nome: "Frango com Catupiry", desc: "Frango desfiado temperado e Catupiry original", preco: 39.90 }
+        ]
+    };
 
-        /**
-         * STATE MANAGER (Player & Game State)
-         */
-        const STATE = {
-            player: {
-                name: '', className: '', level: 1, xp: 0, xpNeeded: 100,
-                stats: { hp: 0, maxHp: 0, mp: 0, maxMp: 0, atk: 0, def: 0 },
-                inventory: { 'pot_hp': 3 }, // Start with 3 potions
-                position: { x: 0, y: 0 }
-            },
-            combat: {
-                targetAlive: false,
-                currentMobIndex: 0,
-                mobsKilled: 0
-            }
-        };
+    let cart = [];
 
-        /**
-         * UI CONTROLLER
-         * Responsável por sincronizar o HTML com o STATE.
-         */
-        const UI = {
-            log(msg, color = "#000") {
-                const chat = document.getElementById('chat-log');
-                const line = document.createElement('div');
-                line.style.color = color;
-                line.style.marginBottom = "4px";
-                line.innerHTML = `> ${msg}`;
-                chat.prepend(line);
-            },
-            updateStats() {
-                const p = STATE.player;
-                document.getElementById('ui-name').innerText = p.name;
-                document.getElementById('ui-level').innerText = `LVL ${p.level}`;
-                document.getElementById('ui-class').innerText = GAME_DATA.classes[p.className].name.toUpperCase();
-                
-                document.getElementById('ui-atk').innerText = p.stats.atk;
-                document.getElementById('ui-def').innerText = p.stats.def;
-
-                const updateBar = (id, current, max) => {
-                    document.getElementById(`ui-${id}-txt`).innerText = `${Math.floor(current)}/${max}`;
-                    document.getElementById(`ui-${id}-bar`).style.width = `${Math.max(0, Math.min(100, (current/max)*100))}%`;
-                };
-
-                updateBar('hp', p.stats.hp, p.stats.maxHp);
-                updateBar('mp', p.stats.mp, p.stats.maxMp);
-                updateBar('xp', p.xp, p.xpNeeded);
-            },
-            updateInventory() {
-                const grid = document.getElementById('inventory-grid');
-                grid.innerHTML = '';
-                for (let i = 0; i < 12; i++) {
-                    const slot = document.createElement('div');
-                    slot.className = 'inv-slot';
-                    const itemKeys = Object.keys(STATE.player.inventory);
-                    if (i < itemKeys.length) {
-                        const key = itemKeys[i];
-                        const qty = STATE.player.inventory[key];
-                        const itemData = GAME_DATA.items[key];
-                        slot.innerHTML = `<span class="text-xl">${itemData.icon}</span><span class="item-qty">${qty}</span>`;
-                        slot.title = itemData.name;
-                        // Use potion on click
-                        if(itemData.type === 'consumable') {
-                            slot.onclick = () => CombatSystem.useItem(key);
-                        }
-                    }
-                    grid.appendChild(slot);
-                }
-            }
-        };
-
-        /**
-         * CORE LOGIC: COMBAT & PROGRESSION
-         */
-        const CombatSystem = {
-            attack() {
-                if (!STATE.combat.targetAlive) return UI.log("Não há inimigos por perto.", "#757575");
-                
-                // Player Attack
-                const dmg = Math.max(1, STATE.player.stats.atk + Math.floor(Math.random() * 5));
-                phaserScene.damageMob(dmg);
-                UI.log(`Você causou ${dmg} de dano!`, "#1565c0");
-
-                // Mob Attack Response
-                if (STATE.combat.targetAlive) {
-                    setTimeout(() => {
-                        const mobData = phaserScene.currentMob.data;
-                        const mobDmg = Math.max(1, mobData.atk - STATE.player.stats.def + Math.floor(Math.random() * 3));
-                        STATE.player.stats.hp -= mobDmg;
-                        UI.log(`${mobData.name} atacou causando ${mobDmg} de dano.`, "#c62828");
-                        
-                        // Shake camera on hit
-                        phaserScene.cameras.main.shake(100, 0.01);
-
-                        if (STATE.player.stats.hp <= 0) {
-                            UI.log("VOCÊ MORREU! Fim de jogo.", "#b71c1c");
-                            document.getElementById('screen-creation').style.display = 'flex'; // Reset (simplified)
-                        }
-                        UI.updateStats();
-                    }, 500); // Mob delay
-                }
-            },
-            useItem(itemKey) {
-                if (!STATE.player.inventory[itemKey] || STATE.player.inventory[itemKey] <= 0) return;
-                const item = GAME_DATA.items[itemKey];
-                
-                if (itemKey === 'pot_hp') {
-                    STATE.player.stats.hp = Math.min(STATE.player.stats.maxHp, STATE.player.stats.hp + item.value);
-                    UI.log(`Usou Poção: Curou ${item.value} HP.`, "#4caf50");
-                }
-                
-                STATE.player.inventory[itemKey]--;
-                if(STATE.player.inventory[itemKey] === 0) delete STATE.player.inventory[itemKey];
-                
-                UI.updateStats();
-                UI.updateInventory();
-            },
-            reward(mob) {
-                STATE.combat.mobsKilled++;
-                
-                // XP System
-                STATE.player.xp += mob.xp;
-                UI.log(`Derrotou ${mob.name}! +${mob.xp} XP`, "#fbc02d");
-
-                // Loot System (50% chance for potion, 100% for gold)
-                if(!STATE.player.inventory['loot_gold']) STATE.player.inventory['loot_gold'] = 0;
-                const goldYield = Math.floor(Math.random() * 10) + (mob.boss ? 50 : 1);
-                STATE.player.inventory['loot_gold'] += goldYield;
-                UI.log(`Drop: ${goldYield} Ouro`, "#fbc02d");
-
-                if(Math.random() > 0.5) {
-                    STATE.player.inventory['pot_hp'] = (STATE.player.inventory['pot_hp'] || 0) + 1;
-                    UI.log(`Drop: 1x Poção HP`, "#fbc02d");
-                }
-
-                // Level Up Logic
-                if (STATE.player.xp >= STATE.player.xpNeeded) {
-                    STATE.player.level++;
-                    STATE.player.xp -= STATE.player.xpNeeded;
-                    STATE.player.xpNeeded = Math.floor(STATE.player.xpNeeded * 1.5);
-                    
-                    const growth = GAME_DATA.classes[STATE.player.className].growth;
-                    STATE.player.stats.maxHp += growth.hp;
-                    STATE.player.stats.hp = STATE.player.stats.maxHp;
-                    STATE.player.stats.atk += growth.atk;
-                    
-                    UI.log(`[LEVEL UP] Você atingiu o Nível ${STATE.player.level}!`, "#9c27b0");
-                }
-                
-                UI.updateStats();
-                UI.updateInventory();
-                
-                // Spawn next mob after delay
-                setTimeout(() => phaserScene.spawnMob(), 1500);
-            }
-        };
-
-        /**
-         * CHARACTER CREATION LOGIC
-         */
-        let selectedClass = null;
-        const initCreationScreen = () => {
-            const container = document.getElementById('class-container');
-            Object.keys(GAME_DATA.classes).forEach(key => {
-                const c = GAME_DATA.classes[key];
-                const div = document.createElement('div');
-                div.className = 'class-card';
-                div.innerHTML = `
-                    <div class="w-12 h-12 mx-auto mb-2" style="background-color: #${c.color.toString(16)}"></div>
-                    <h3 class="text-yellow-500 text-sm mb-2">${c.name}</h3>
-                    <p class="text-[8px] text-gray-300">HP: ${c.baseHp} | ATK: ${c.baseAtk}</p>
-                `;
-                div.onclick = () => {
-                    document.querySelectorAll('.class-card').forEach(el => el.classList.remove('selected'));
-                    div.classList.add('selected');
-                    selectedClass = key;
-                    validateStart();
-                };
-                container.appendChild(div);
-            });
-
-            document.getElementById('input-name').addEventListener('input', validateStart);
-            
-            document.getElementById('btn-start-game').onclick = () => {
-                // Set initial state
-                STATE.player.name = document.getElementById('input-name').value.toUpperCase();
-                STATE.player.className = selectedClass;
-                
-                const cData = GAME_DATA.classes[selectedClass];
-                STATE.player.stats = {
-                    hp: cData.baseHp, maxHp: cData.baseHp,
-                    mp: cData.baseMp, maxMp: cData.baseMp,
-                    atk: cData.baseAtk, def: cData.baseDef
-                };
-
-                document.getElementById('screen-creation').style.display = 'none';
-                UI.updateStats();
-                UI.updateInventory();
-                UI.log(`A jornada de ${STATE.player.name} começou...`, "#000");
-                
-                // Initialize Phaser Game
-                initPhaserEngine();
-            };
-        };
-
-        const validateStart = () => {
-            const name = document.getElementById('input-name').value;
-            const btn = document.getElementById('btn-start-game');
-            btn.disabled = !(name.length > 2 && selectedClass);
-        };
-
-        /**
-         * PHASER 3 ENGINE SETTINGS
-         */
-        let phaserScene;
-        const initPhaserEngine = () => {
-            const container = document.getElementById('phaser-canvas-container');
-            const config = {
-                type: Phaser.AUTO, parent: 'phaser-canvas-container',
-                width: container.clientWidth, height: container.clientHeight,
-                physics: { default: 'arcade', arcade: { debug: false } },
-                scene: { create: phaserCreate, update: phaserUpdate }
-            };
-            new Phaser.Game(config);
-        };
-
-        function phaserCreate() {
-            phaserScene = this;
-            this.cameras.main.setBackgroundColor('#d7ccc8'); // Paper dark
-            
-            // Grid de Batalha Tático
-            const grid = this.add.graphics();
-            grid.lineStyle(2, 0x8d6e63, 0.4);
-            for(let i = 0; i < 3000; i += 40) {
-                grid.moveTo(i, 0); grid.lineTo(i, 3000);
-                grid.moveTo(0, i); grid.lineTo(3000, i);
-            }
-            grid.strokePath();
-
-            // Player Token Maker
-            const pColor = GAME_DATA.classes[STATE.player.className].color;
-            const pt = this.add.graphics();
-            pt.fillStyle(0x000000, 1); pt.fillCircle(20, 20, 18); // Base
-            pt.fillStyle(pColor, 1); pt.fillRect(10, 10, 20, 20); // Corp
-            pt.generateTexture('tex_player', 40, 40);
-            pt.destroy();
-
-            // Init Player Sprite
-            this.player = this.physics.add.sprite(config.width/2, config.height/2, 'tex_player');
-            this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
-            this.cursors = this.input.keyboard.createCursorKeys();
-            
-            // Helper Keys
-            this.input.keyboard.on('keydown-Q', () => document.getElementById('btn-atk').click());
-            this.input.keyboard.on('keydown-E', () => CombatSystem.useItem('pot_hp'));
-
-            // Mob Management Variables
-            this.currentMob = null;
-            this.mobHpText = null;
-
-            // Engine API for Logic Module
-            this.spawnMob = () => {
-                if(this.currentMob) this.currentMob.destroy();
-                if(this.mobHpText) this.mobHpText.destroy();
-
-                // Determine Boss (Every 5 kills)
-                const isBossSpawn = (STATE.combat.mobsKilled + 1) % 5 === 0;
-                let mobData;
-                
-                if (isBossSpawn) {
-                    mobData = GAME_DATA.mobs[3]; // Dragão
-                    UI.log("!!! UM CHEFÃO APARECEU !!!", "#b71c1c");
-                    this.cameras.main.flash(500, 255, 0, 0);
-                } else {
-                    // Random standard mob based on level
-                    const maxIndex = Math.min(2, Math.floor(STATE.player.level / 2));
-                    mobData = GAME_DATA.mobs[Math.floor(Math.random() * (maxIndex + 1))];
-                }
-
-                // Generate Mob Texture dynamically based on Data
-                const mt = this.add.graphics();
-                mt.fillStyle(0x000000, 1); mt.fillCircle(20, 20, 18);
-                mt.fillStyle(mobData.color, 1); mt.fillRect(10, 10, 20, 20);
-                mt.fillStyle(0xffffff, 1); mt.fillCircle(15, 15, 4); mt.fillCircle(25, 15, 4); // Eyes
-                mt.generateTexture('tex_mob_temp', 40, 40);
-                mt.destroy();
-
-                // Position slightly away from player
-                const spawnX = this.player.x + Phaser.Math.Between(-150, 150);
-                const spawnY = this.player.y + Phaser.Math.Between(-150, 150);
-
-                this.currentMob = this.physics.add.sprite(spawnX, spawnY, 'tex_mob_temp');
-                if (mobData.scale) this.currentMob.setScale(mobData.scale);
-                
-                // Attach State to Sprite
-                this.currentMob.data = { ...mobData };
-                this.currentMob.currentHp = mobData.hp;
-
-                // Floating HP Text
-                this.mobHpText = this.add.text(spawnX, spawnY - 30, `${this.currentMob.currentHp}/${mobData.hp}`, {
-                    fontFamily: 'Press Start 2P', fontSize: '8px', fill: '#ff0000'
-                }).setOrigin(0.5);
-
-                STATE.combat.targetAlive = true;
-                UI.log(`Um ${mobData.name} surgiu!`, "#000");
-            };
-
-            this.damageMob = (amount) => {
-                if(!this.currentMob) return;
-                
-                this.currentMob.currentHp -= amount;
-                this.mobHpText.setText(`${Math.max(0, this.currentMob.currentHp)}/${this.currentMob.data.hp}`);
-                
-                // Damage Text Tween
-                const dmgTxt = this.add.text(this.currentMob.x, this.currentMob.y, `-${amount}`, { fontFamily: 'Press Start 2P', fontSize: '14px', fill: '#ffffff', stroke: '#000', strokeThickness: 4 });
-                this.tweens.add({ targets: dmgTxt, y: this.currentMob.y - 50, alpha: 0, duration: 800, onComplete: () => dmgTxt.destroy() });
-                
-                // Shake mob
-                this.tweens.add({ targets: this.currentMob, x: this.currentMob.x + 5, yoyo: true, duration: 50, repeat: 2 });
-
-                if (this.currentMob.currentHp <= 0) {
-                    STATE.combat.targetAlive = false;
-                    const mobDefeated = this.currentMob.data;
-                    this.currentMob.destroy();
-                    this.mobHpText.destroy();
-                    CombatSystem.reward(mobDefeated);
-                }
-            };
-
-            // Hook HTML Buttons
-            document.getElementById('btn-atk').onclick = CombatSystem.attack;
-            
-            // First spawn
-            setTimeout(() => this.spawnMob(), 1000);
+    // Lógica de Horário
+    function checkStatus() {
+        const now = new Date();
+        const hour = now.getHours();
+        const badge = document.getElementById('status-badge');
+        
+        // Atendimento: 20:00 (20) até 01:00 (0)
+        const isOpen = (hour >= 20 || hour < 1);
+        
+        if(isOpen) {
+            badge.innerText = "● LOJA ABERTA";
+            badge.className = "status-badge open";
+        } else {
+            badge.innerText = "● LOJA FECHADA (Abre às 20h)";
+            badge.className = "status-badge closed";
         }
+    }
 
-        function phaserUpdate() {
-            if(!this.player) return;
-            this.player.setVelocity(0);
-            const speed = 250;
-
-            if (this.cursors.left.isDown) this.player.setVelocityX(-speed);
-            else if (this.cursors.right.isDown) this.player.setVelocityX(speed);
-            if (this.cursors.up.isDown) this.player.setVelocityY(-speed);
-            else if (this.cursors.down.isDown) this.player.setVelocityY(speed);
-
-            // Sync Mob HP Text position
-            if (this.currentMob && this.mobHpText && STATE.combat.targetAlive) {
-                const offsetY = this.currentMob.data.boss ? 60 : 30;
-                this.mobHpText.setPosition(this.currentMob.x, this.currentMob.y - offsetY);
-            }
-        }
-
-        // ==================== INITIALIZATION ====================
-        window.onload = () => {
-            initCreationScreen();
-        };
-
-        // Resize Handling
-        window.addEventListener('resize', () => {
-            const container = document.getElementById('phaser-canvas-container');
-            if(phaserScene && phaserScene.scale) {
-                phaserScene.scale.resize(container.clientWidth, container.clientHeight);
-            }
+    function renderMenu() {
+        const tDiv = document.getElementById('menu-tradicionais');
+        menu.tradicionais.forEach(item => {
+            tDiv.innerHTML += `
+                <div class="product-card">
+                    <div class="product-info">
+                        <h3>${item.nome}</h3>
+                        <p>${item.desc}</p>
+                        <span class="price">R$ ${item.preco.toFixed(2).replace('.',',')}</span>
+                    </div>
+                    <button class="add-btn" onclick="addToCart(${item.id})">+</button>
+                </div>
+            `;
         });
-    </script>
+
+        const rDiv = document.getElementById('menu-recheadas');
+        menu.recheadas.forEach(item => {
+            rDiv.innerHTML += `
+                <div class="product-card">
+                    <div class="product-info">
+                        <h3>${item.nome}</h3>
+                        <p>${item.desc}</p>
+                        <span class="price">R$ ${item.preco.toFixed(2).replace('.',',')}</span>
+                    </div>
+                    <button class="add-btn" onclick="addToCart(${item.id})">+</button>
+                </div>
+            `;
+        });
+    }
+
+    function addToCart(id) {
+        const item = [...menu.tradicionais, ...menu.recheadas].find(i => i.id === id);
+        cart.push(item);
+        updateCartBar();
+        
+        // Haptic Feedback simulado
+        if(window.navigator.vibrate) window.navigator.vibrate(50);
+    }
+
+    function updateCartBar() {
+        const bar = document.getElementById('cart-bar');
+        const count = document.getElementById('cart-count');
+        const total = document.getElementById('cart-total');
+        
+        if(cart.length > 0) {
+            bar.style.display = 'flex';
+            count.innerText = cart.length;
+            const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
+            total.innerText = `R$ ${totalSum.toFixed(2).replace('.',',')}`;
+        }
+    }
+
+    function openCheckout() {
+        document.getElementById('modal-checkout').style.display = 'flex';
+        const summary = document.getElementById('order-summary');
+        summary.innerHTML = cart.map(i => `
+            <div class="summary-item">
+                <span>1x ${i.nome}</span>
+                <span>R$ ${i.preco.toFixed(2)}</span>
+            </div>
+        `).join('');
+        
+        const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
+        summary.innerHTML += `<hr style="margin:10px 0"><div class="summary-item"><strong>Total</strong><strong>R$ ${totalSum.toFixed(2)}</strong></div>`;
+    }
+
+    function closeCheckout() {
+        document.getElementById('modal-checkout').style.display = 'none';
+    }
+
+    function sendWhatsApp() {
+        const nome = document.getElementById('nome').value;
+        const endereco = document.getElementById('endereco').value;
+        const bairro = document.getElementById('bairro').value;
+        const pagamento = document.getElementById('pagamento').value;
+
+        if(!nome || !endereco) {
+            alert("Por favor, preencha nome e endereço!");
+            return;
+        }
+
+        const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
+        let msg = `*NOVO PEDIDO - BATATARIA REAL*%0A%0A`;
+        msg += `*Cliente:* ${nome}%0A`;
+        msg += `*Endereço:* ${endereco} - ${bairro}%0A`;
+        msg += `*Pagamento:* ${pagamento}%0A%0A`;
+        msg += `*ITENS:*%0A`;
+        
+        cart.forEach(i => {
+            msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2)})%0A`;
+        });
+
+        msg += `%0A*TOTAL: R$ ${totalSum.toFixed(2)}*`;
+
+        const fone = "5521976878741";
+        window.open(`https://api.whatsapp.com/send?phone=${fone}&text=${msg}`);
+    }
+
+    window.onload = () => {
+        checkStatus();
+        renderMenu();
+        setInterval(checkStatus, 60000); // Atualiza status a cada minuto
+    };
+</script>
+
 </body>
 </html>
+"""
