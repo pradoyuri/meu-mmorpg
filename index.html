@@ -3,250 +3,397 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINK START // OVR System Engine</title>
+    <title>AINCRAD.sys // RPG de Mesa Offline</title>
     <style>
         :root {
-            --bg-color: #0a0c10;
-            --panel-bg: #12161f;
-            --text-color: #c9d1d9;
-            --accent-blue: #00f0ff;
-            --accent-red: #ff3e3e;
-            --accent-green: #00ff66;
-            --border-color: #21262d;
+            --bg-color: #0d0e12;
+            --panel-bg: #161920;
+            --accent-color: #00ffcc;
+            --text-color: #e2e8f0;
+            --border-color: #2d3748;
+            --damage-color: #ff4a4a;
         }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
             background-color: var(--bg-color);
             color: var(--text-color);
-            line-height: 1.6;
             margin: 0;
             padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
+            line-height: 1.6;
         }
 
         header {
-            border-bottom: 2px solid var(--accent-blue);
-            padding-bottom: 20px;
-            margin-bottom: 40px;
             text-align: center;
+            border-bottom: 3px double var(--accent-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         h1 {
-            color: var(--accent-blue);
+            color: var(--accent-color);
+            margin: 0;
             font-size: 2.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin: 0;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
         .subtitle {
-            font-family: 'Courier New', Courier, monospace;
-            color: var(--accent-red);
-            font-weight: bold;
-            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #718096;
         }
 
-        .dev-note {
-            background: rgba(255, 62, 62, 0.1);
-            border-left: 4px solid var(--accent-red);
-            padding: 15px;
-            margin-bottom: 30px;
-            border-radius: 0 8px 8px 0;
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rules-section {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
         }
 
         h2 {
-            color: var(--accent-blue);
+            color: var(--accent-color);
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-top: 40px;
+            padding-bottom: 10px;
+            margin-top: 0;
         }
 
         h3 {
-            color: var(--accent-green);
+            color: #fff;
         }
 
-        .pillar-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
+        .highlight {
+            color: var(--accent-color);
+            font-weight: bold;
         }
 
-        .card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .formula-box {
-            background-color: #000;
-            border: 1px dashed var(--accent-blue);
+        .danger-zone {
+            border: 1px solid var(--damage-color);
+            background-color: rgba(255, 74, 74, 0.05);
             padding: 15px;
-            text-align: center;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.2rem;
-            color: var(--accent-green);
-            margin: 20px 0;
             border-radius: 4px;
-        }
-
-        ul {
-            list-style-type: square;
-            padding-left: 20px;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        .code-inline {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #21262d;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #ff7b72;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         th, td {
             border: 1px solid var(--border-color);
-            padding: 12px;
+            padding: 10px;
             text-align: left;
         }
 
         th {
-            background-color: rgba(0, 240, 255, 0.1);
-            color: var(--accent-blue);
+            background-color: rgba(0, 255, 204, 0.1);
+            color: var(--accent-color);
         }
 
-        tr:nth-child(even) {
-            background-color: rgba(255,255,255,0.02);
+        /* Estilos da Ficha e Ferramentas */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
         }
 
-        .warning-text {
-            color: var(--accent-red);
+        .interactive-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            background-color: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: inherit;
             font-weight: bold;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .dice-log {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            height: 120px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
+<header>
+    <h1>AINCRAD.sys // PROTOCOLO RED</h1>
+    <div class="subtitle">Motor de RPG Offline para Sobrevivência Virtual Letal - V3.0.26</div>
+</header>
+
 <div class="container">
-    <header>
-        <h1>SAO // OVR Engine</h1>
-        <div class="subtitle">Offline Virtual Reality v1.0.0 // Hardcore TTRPG Ruleset</div>
-    </header>
-
-    <div class="dev-note">
-        <strong>[LOG DO DESENVOLVEDOR - NOTA DE REMASTERIZAÇÃO]:</strong> Como programador e mestre old-school rodando sistemas há mais de três décadas, refatorei as mecânicas táticas de <em>Cyberpunk RED</em> e <em>Fragged Empire</em> para rodar um ambiente de Fantasia Medieval Simulada em "Bare Metal" (totalmente offline). O "Netrunning" e os implantes cibernéticos foram traduzidos diretamente como manipulação de código-fonte da própria matriz virtual e maestria de armas. <span class="warning-text">Aviso: Instabilidade no HP resulta em wipe físico do usuário. Se o HP chegar a zero, a campanha termina para aquele hardware biológico.</span>
-    </div>
-
-    <div class="pillar-grid">
-        
-        <!-- PILAR 1 -->
-        <section class="card">
-            <h2>1. Elementos Fundamentais (Hardware de Mesa)</h2>
-            <p>Para emular a interface neural sem usar um único bit de energia elétrica, o motor offline depende de quatro componentes físicos estruturais:</p>
+    
+    <!-- COLUNA DA ESQUERDA: LIVRO DE REGRAS -->
+    <main>
+        <section class="rules-section">
+            <h2>01. Elementos Fundamentais</h2>
+            <p>Seja bem-vindo ao <strong>AINCRAD.sys</strong>. O hardware falhou, as travas de segurança foram removidas via software e a desconexão manual resulta em morte cerebral instantânea. Este manual físico/offline contém as especificações matemáticas para rodar a simulação na sua mesa.</p>
             <ul>
-                <li><strong>Ficha de Personagem (Aba de Status):</strong> Papel impresso que funciona como o seu HUD analógico. Armazena os atributos puros convertidos do sistema (Força, Agilidade, Alocação de Código), suas perícias calibradas (Furtividade, Medicina Estável) e os slots de equipamentos equipados na memória volátil do inventário.</li>
-                <li><strong>Dados Físicos (Poliedros de Processamento):</strong> Os geradores de aleatoriedade do sistema. Embora usemos a base de dados de 4, 6 e 10 lados para danos e tabelas críticas herdadas de <em>Fragged Empire</em>, o núcleo de checagem principal roda na CPU do <span class="code-inline">D20</span> (dado de 20 lados).</li>
-                <li><strong>Livro de Regras (Manual do Kernel):</strong> O repositório físico contendo as tabelas indexadas de custos de itens, modificadores de ambiente da simulação, descrição de códigos de manipulação (magias) e a matriz de danos de combate tático.</li>
-                <li><strong>Escudo do Mestre (Console do Administrador):</strong> Divisória física que oculta os spawns de monstros e as rotinas secretas do Narrador (System Admin), exibindo tabelas de consulta rápida de condições no verso.</li>
+                <li><strong>Ficha de Personagem:</strong> O arquivo de dados físico do seu avatar. Use lápis para mapear seus Atributos, PV (Pontos de Vida) e Buffs. Se rasgar, o dado foi corrompido.</li>
+                <li><strong>Dados Poliedricos (D4, D6, d10, D20):</strong> Os geradores de entropia pseudo-aleatória físicos da mesa. O <span class="highlight">D20</span> processa a resolução de ações.</li>
+                <li><strong>Livro de Regras:</strong> Este documento. Suas tabelas e taxas de drop são a lei absoluta da simulação.</li>
+                <li><strong>Escudo do Mestre (The Root Admin):</strong> A barreira física que esconde os monstros ocultos e os algoritmos gerados pelo mestre de jogo.</li>
             </ul>
         </section>
 
-        <!-- PILAR 2 -->
-        <section class="card">
-            <h2>2. Ciclo de Jogo (O Fluxo de Inputs)</h2>
-            <p>A engine do jogo processa as ações através de uma estrutura síncrona de três passos contínuos em formato de conversa guiada:</p>
+        <section class="rules-section">
+            <h2>02. Ciclo de Jogo (Pipeline de Execução)</h2>
+            <p>A mesa opera em um loop síncrono dividido em 3 etapas de processamento contínuo:</p>
+            <ol>
+                <li><strong>Mestre (Output do Ambiente):</strong> O Administrador narra o estado do cenário. <em>"Vocês entram no andar 74. O Boss 'The Gleam Eyes' está no centro da sala de mármore azul, empunhando uma espada de duas mãos."</em></li>
+                <li><strong>Jogadores (Input de Ação):</strong> Os usuários declaram suas intenções de entrada. <em>"Eu vou usar minha habilidade de código 'Frame_Skip' para flanquear pelas costas dele e desferir um corte vertical."</em></li>
+                <li><strong>Resolução (Processamento de Regra):</strong> O Mestre chama a função de cálculo correspondente exigindo a rolagem física dos dados.</li>
+            </ol>
+        </section>
+
+        <section class="rules-section">
+            <h2>03. Resolução de Ações (A Matemática do Código)</h2>
+            <p>A taxa de sucesso de qualquer operação arriscada na simulação segue a arquitetura matemática padrão de Classe de Dificuldade (CD):</p>
+            <div style="background-color: var(--bg-color); padding: 15px; border-left: 4px solid var(--accent-color); font-weight: bold; margin: 15px 0;">
+                Resultado do Dado (D20) + Modificador do Atributo + Bônus de Perícia >= Classe de Dificuldade (CD)
+            </div>
+            <p><strong>Exemplo Prático:</strong> Um jogador tenta quebrar uma armadura de cristal. A CD imposta pelo mestre é 16. O jogador rola um 11 no dado físico e possui +5 no atributo <span class="highlight">TEC (Técnica)</span>. Total = 16. Operação executada com sucesso. Se o total fosse 15, a arma ricochetearia, aplicando feedback de choque estático no avatar.</p>
+            
+            <h3>Tabela de Dificuldade Padrão (CD)</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Fase</th>
-                        <th>Agente</th>
-                        <th>Execução na Mesa</th>
+                        <th>Nível de Complexidade</th>
+                        <th>CD Alvo</th>
+                        <th>Exemplo de Cenário Operacional</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>1. Renderização</strong></td>
-                        <td>Mestre (SysAdmin)</td>
-                        <td>Descreve o ambiente e o estado atual da simulação: <em>"Vocês sobem os degraus do 74º andar. À frente, uma gigantesca porta de ferro fundido bloqueia o acesso à sala do Boss. Runas estáticas oscilam nas bordas da fechadura."</em></td>
+                        <td>Fácil / Rotineiro</td>
+                        <td>10</td>
+                        <td>Identificar o padrão elementar de um monstro comum.</td>
                     </tr>
                     <tr>
-                        <td><strong>2. Input de Comando</strong></td>
-                        <td>Jogadores (Avatares)</td>
-                        <td>Declaram sua intenção tática exata: <em>"Vou usar minhas ferramentas de ladinagem para injetar um exploit físico e arrombar a fechadura."</em></td>
+                        <td>Médio / Técnico</td>
+                        <td>15</td>
+                        <td>Arrombar um baú codificado no andar 50.</td>
                     </tr>
                     <tr>
-                        <td><strong>3. Resolução de Código</strong></td>
-                        <td>Mestre & Dados</td>
-                        <td>O Admin dita a regra de restrição: <em>"Faça um teste de quebra de matriz. Role um dado de 20 lados e some seu modificador de Destreza (Código)."</em></td>
+                        <td>Difícil / Sobrecarga</td>
+                        <td>20</td>
+                        <td>Esquivar do ataque em área de um Boss de Andar.</td>
+                    </tr>
+                    <tr>
+                        <td>Impossível / Quebra de Matriz</td>
+                        <td>30</td>
+                        <td>Bloquear o golpe de espada do Administrador do Sistema.</td>
                     </tr>
                 </tbody>
             </table>
         </section>
 
-        <!-- PILAR 3 -->
-        <section class="card">
-            <h2>3. Resolução de Ações (A Matemática do Kernel)</h2>
-            <p>O sucesso de qualquer input arriscado ou modificação do ambiente simulado segue o conceito rígido de <strong>Dificuldade Alvo (Classe de Dificuldade - CD)</strong>. A fórmula de processamento matemático básica é:</p>
-            
-            <div class="formula-box">
-                Resultado do Dado + Modificador do Personagem >= Classe de Dificuldade (CD)
-            </div>
-
-            <h3>Exemplo Prático de Execução:</h3>
-            <p>O jogador tenta o exploit na fechadura do 74º andar. Ele rola o <span class="code-inline">D20</span> e obtém um <strong>14</strong> na face do dado. Sua ficha possui um modificador de <span class="code-inline">+4</span> em Ladinagem (derivado de sua Maestria de Código). O output total é <strong>18</strong>.</p>
+        <section class="rules-section">
+            <h2>04. Combate Tático e Gestão de Memória (Recursos)</h2>
+            <p>O combate herda a letalidade posicional de *Cyberpunk RED*. Se você for exposto em campo aberto, seu código será deletado.</p>
             <ul>
-                <li>Se a CD da fechadura definida pelo Mestre fosse <strong>15</strong>: O processamento retorna <span class="code-inline">SUCESSO</span>. Os pistões da porta correm para as laterais e o acesso é liberado.</li>
-                <li>Se o output fosse menor que 15: O processamento retorna <span class="code-inline">FALHA</span>. A fechadura entra em estado de Lockout (trava permanentemente) ou dispara uma rotina de alarme, spawnando sentinelas na área.</li>
-            </ul>
-        </section>
-
-        <!-- PILAR 4 -->
-        <section class="card">
-            <h2>4. Gestão de Combate e Recursos (Mecânicas de Letalidade)</h2>
-            <p>O combate tático refinado exige precisão matemática absoluta na mesa. Quando a simulação entra em modo de iniciativa, o gerenciamento de recursos se torna crítico:</p>
-            
-            <h3>Fila de Execução (Iniciativa)</h3>
-            <p>No início de qualquer confronto, todos os jogadores e ameaças rolam um dado adicionando seus modificadores de reflexo. A ordem física dos papéis na mesa determina estritamente quem executa seus frames de ação primeiro.</p>
-
-            <h3>Frames de Ação (Turnos)</h3>
-            <p>Na sua vez, o avatar possui largura de banda para realizar duas ações básicas ou uma ação completa:</p>
-            <ul>
-                <li><strong>Movimentação Local:</strong> Deslocar-se pelo mapa de papel quadriculado ou Grid tático baseado na sua velocidade base.</li>
-                <li><strong>Ação Computacional/Física:</strong> Desferir um ataque de arma, aplicar um item de restauração médica ou injetar um código de suporte (magia).</li>
+                <li><strong>Iniciativa:</strong> No início do combate, role <code>D20 + Taxa de Quadros (AGI)</code>. A mesa executa os turnos da maior para a menor pontuação.</li>
+                <li><strong>Ações no Turno:</strong> Você possui 1 Ação de Movimento (Mudar de Quadrante no mapa físico) e 1 Ação Principal (Atacar, Injetar código de cura, ou Ativar Mod).</li>
+                <li><strong>Gestão de Recursos a Lápis:</strong> Seus Pontos de Vida (PV) e Energia de Linha (Mana) devem ser atualizados em tempo real na ficha. Use a borracha com cuidado; o desgaste do papel reflete a fadiga física do jogador real.</li>
             </ul>
 
-            <h3>Consumíveis Físicos e Alocação de Memória</h3>
-            <p>Os pontos de vida (HP), pontos de energia de código (Mana) e cartuchos/flechas são controlados estritamente <strong>a lápis</strong> na ficha física. Não há salvamento automático em nuvem. O dano sofrido é subtraído rasgando o grafite do papel.</p>
-            
-            <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--accent-red); padding: 15px; margin-top: 20px; border-radius: 4px;">
-                <span class="warning-text">DIRETRIZ DE INTEGRALIDADE DO HARDWARE (PERMADEATH):</span><br>
-                Seguindo as regras de letalidade estrita de Cyberpunk RED, se os pontos de vida (HP) de um personagem forem reduzidos a 0 (zero) na ficha física, o dispositivo gerador de sobrecarga fictício na mesa simula a queima do lobo frontal. O personagem é deletado permanentemente do banco de dados da campanha e o jogador deve se retirar da mesa de jogo.
+            <div class="danger-zone">
+                <h3>ALERTA DE SISTEMA: MORTE PERMANENTE (PERMADEATH)</h3>
+                <p>Neste módulo, não existem magias de ressurreição. Se os Pontos de Vida (PV) do seu avatar chegarem a <strong>0</strong>, o personagem entra em estado de <code>SYSTEM_CRASH</code>. Você tem 3 rodadas para receber um item de cura do tipo "Código_Patch". Se falhar, o hardware na mesa real simula a descarga sináptica: o personagem é apagado definitivamente, e o jogador deve se retirar da mesa da campanha.</p>
             </div>
         </section>
 
-    </div>
+        <section class="rules-section">
+            <h2>05. Customização: "Code Hacks" (Substitutos de Implantes)</h2>
+            <p>Em vez de aprimoramentos cibernéticos físicos, os avatares modificam as linhas de código de suas armas e do próprio corpo virtual para espelhar modificações transumanistas:</p>
+            
+            <h3>Tabela de Customização de Código</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Modificação de Código</th>
+                        <th>Efeito Mecânico (Baseado em Cyberpunk RED)</th>
+                        <th>Custo de Memória RAM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="highlight">Frame_Skip.dll</span></td>
+                        <td>Permite realizar uma Ação Principal extra por rodada uma vez por combate. (+Aceleração sináptica)</td>
+                        <td>3 Slots</td>
+                    </tr>
+                    <tr>
+                        <td><span class="highlight">Ice_Barrier.patch</span></td>
+                        <td>Adiciona +4 de Blindagem Abstrata contra ataques mágicos ou físicos. Reduz em 1 ponto a cada dano sofrido.</td>
+                        <td>2 Slots</td>
+                    </tr>
+                    <tr>
+                        <td><span class="highlight">Sword_Savant.exe</span></td>
+                        <td>Maestria de Arma Crítica. Ignora metade da defesa de alvos de armadura pesada ao usar espadas.</td>
+                        <td>4 Slots</td>
+                    </tr>
+                    <tr>
+                        <td><span class="highlight">Overclock_Sináptico</span></td>
+                        <td>Sacrifica 5 PV temporariamente para garantir um bônus de +3 em qualquer teste de perícia física ou de ataque.</td>
+                        <td>2 Slots</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
 
-    <footer style="margin-top: 60px; text-align: center; font-family: monospace; color: #8b949e; border-top: 1px solid var(--border-color); padding-top: 20px;">
-        // EOF - SYSTEM OFFLINE // INJECTING CODE REPLICATOR COMPLETE
-    </footer>
+    <!-- COLUNA DA DIREITA: FERRAMENTAS INTERATIVAS (MESA DE JOGO) -->
+    <aside class="sidebar">
+        
+        <!-- COMPILADOR DE DADOS -->
+        <div class="interactive-panel">
+            <h2>[Gerador de Entropia]</h2>
+            <div class="form-group">
+                <label for="dice-type">Selecionar Hardware (Dado):</label>
+                <select id="dice-type">
+                    <option value="20">D20 (Resolução Geral)</option>
+                    <option value="12">D12 (Dano Pesado)</option>
+                    <option value="10">D10 (Percentual/Iniciativa)</option>
+                    <option value="8">D8 (Dano Médio)</option>
+                    <option value="6">D6 (Dano Leve / Utilitários)</option>
+                    <option value="4">D4 (Efeitos de Status)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dice-mod">Modificador de Código (Bônus):</label>
+                <input type="number" id="dice-mod" value="0">
+            </div>
+            <button class="btn" onclick="rollDice()">EXECUTAR ROLAGEM</button>
+            <div class="dice-log" id="dice-log">
+                > Sistema online. Aguardando input de dados...
+            </div>
+        </div>
+
+        <!-- FICHA DE PERSONAGEM COMPACTA -->
+        <div class="interactive-panel">
+            <h2>[Avatar.cfg]</h2>
+            <div class="form-group">
+                <label>Nome do Usuário:</label>
+                <input type="text" value="Kirito_Clone_01">
+            </div>
+            <div class="stat-grid">
+                <div class="form-group">
+                    <label>FOR (Força):</label>
+                    <input type="number" id="char-for" value="4">
+                </div>
+                <div class="form-group">
+                    <label>AGI (Agilidade):</label>
+                    <input type="number" id="char-agi" value="5">
+                </div>
+                <div class="form-group">
+                    <label>VIT (Vitalidade):</label>
+                    <input type="number" id="char-vit" value="3">
+                </div>
+                <div class="form-group">
+                    <label>TEC (Técnica):</label>
+                    <input type="number" id="char-tec" value="2">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label style="color: var(--damage-color);">PV Atual (Buffer de Vida):</label>
+                <input type="number" value="45" style="border-color: var(--damage-color); color: var(--damage-color);">
+            </div>
+            <div class="form-group">
+                <label>Modificadores Instalados:</label>
+                <input type="text" value="Frame_Skip.dll, Sword_Savant.exe" style="font-size: 0.8rem;">
+            </div>
+            <button class="btn" style="border-color: var(--damage-color); color: var(--damage-color);" onclick="triggerCrash()">SIMULAR SYSTEM_CRASH</button>
+        </div>
+    </aside>
 </div>
+
+<script>
+    function rollDice() {
+        const diceType = parseInt(document.getElementById('dice-type').value);
+        const mod = parseInt(document.getElementById('dice-mod').value) || 0;
+        const roll = Math.floor(Math.random() * diceType) + 1;
+        const total = roll + mod;
+        
+        const log = document.getElementById('dice-log');
+        let status = total >= 15 ? "<span style='color: var(--accent-color);'>[SUCCESS]</span>" : "<span style='color: var(--damage-color);'>[FAILED]</span>";
+        
+        log.innerHTML = `> Rolado D${diceType}: Resultado [${roll}] + Mod [${mod}] = <strong>${total}</strong> ${status}<br>` + log.innerHTML;
+    }
+
+    function triggerCrash() {
+        const log = document.getElementById('dice-log');
+        log.innerHTML = `<span style='color: var(--damage-color); animate: blink 1s infinite;'>[CRITICAL ERROR] LOG_OUT BLOQUEADO. SINAIS VITAIS EM QUEDA. INCIE O PROTOCOLO DE SUPORTE FISICO NA MESA DE JOGO IMEDIATAMENTE!</span><br>` + log.innerHTML;
+    }
+</script>
 
 </body>
 </html>
