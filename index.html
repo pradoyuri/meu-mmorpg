@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AINCRAD.sys // RPG de Mesa Offline</title>
+    <title>Cavaleiros de Caneta, Papel e Código // RPG</title>
     <style>
         :root {
-            --bg-color: #0d0e12;
-            --panel-bg: #161920;
-            --accent-color: #00ffcc;
-            --text-color: #e2e8f0;
-            --border-color: #2d3748;
-            --damage-color: #ff4a4a;
+            --bg-color: #2b1810;
+            --panel-bg: #40261d;
+            --accent-color: #ffbc42;
+            --text-color: #f4ebd9;
+            --border-color: #5c3a21;
+            --meta-color: #a78bfa;
+            --success-color: #4ade80;
+            --fail-color: #f87171;
         }
 
         body {
@@ -25,29 +27,32 @@
 
         header {
             text-align: center;
-            border-bottom: 3px double var(--accent-color);
+            border-bottom: 4px dashed var(--accent-color);
             padding-bottom: 20px;
             margin-bottom: 30px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 20px;
         }
 
         h1 {
             color: var(--accent-color);
             margin: 0;
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px #000;
         }
 
         .subtitle {
             font-size: 0.9rem;
-            color: #718096;
+            color: var(--meta-color);
+            font-weight: bold;
         }
 
         .container {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            max-width: 1400px;
+            gap: 25px;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
@@ -59,53 +64,54 @@
 
         .rules-section {
             background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            border: 3px solid var(--border-color);
             padding: 25px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 25px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.3);
         }
 
         h2 {
             color: var(--accent-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
             margin-top: 0;
+            text-shadow: 1px 1px #000;
         }
 
         h3 {
-            color: #fff;
+            color: var(--meta-color);
+            margin-top: 20px;
         }
 
-        .highlight {
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .danger-zone {
-            border: 1px solid var(--damage-color);
-            background-color: rgba(255, 74, 74, 0.05);
-            padding: 15px;
-            border-radius: 4px;
+        .meta-note {
+            background-color: rgba(167, 139, 250, 0.1);
+            border-left: 4px solid var(--meta-color);
+            padding: 12px;
+            margin: 15px 0;
+            font-style: italic;
+            font-size: 0.9rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
+            background-color: rgba(0,0,0,0.15);
         }
 
         th, td {
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 10px;
             text-align: left;
         }
 
         th {
-            background-color: rgba(0, 255, 204, 0.1);
+            background-color: var(--border-color);
             color: var(--accent-color);
         }
 
-        /* Estilos da Ficha e Ferramentas */
+        /* Lateral Interativa */
         .sidebar {
             position: sticky;
             top: 20px;
@@ -114,55 +120,58 @@
 
         .interactive-panel {
             background-color: var(--panel-bg);
-            border: 1px solid var(--accent-color);
+            border: 3px solid var(--accent-color);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.4);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         label {
             display: block;
             font-size: 0.85rem;
             color: var(--accent-color);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-weight: bold;
         }
 
         input[type="text"], input[type="number"], select {
             width: 100%;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
+            background-color: #1a0e0a;
+            border: 2px solid var(--border-color);
             color: #fff;
             padding: 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
             font-family: inherit;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--accent-color);
         }
 
         .btn {
-            background-color: transparent;
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
+            background-color: var(--accent-color);
+            border: 2px solid #fff;
+            color: #000;
             padding: 10px 15px;
             cursor: pointer;
             font-family: inherit;
             font-weight: bold;
             width: 100%;
-            transition: all 0.3s;
+            border-radius: 6px;
+            box-shadow: 3px 3px 0px #000;
+            transition: transform 0.1s;
         }
 
         .btn:hover {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            box-shadow: 0 0 10px var(--accent-color);
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px #000;
         }
 
         .stat-grid {
@@ -172,13 +181,13 @@
         }
 
         .dice-log {
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            height: 120px;
+            background-color: #1a0e0a;
+            border: 2px solid var(--border-color);
+            height: 140px;
             overflow-y: auto;
             padding: 10px;
             font-size: 0.85rem;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-top: 10px;
         }
     </style>
@@ -186,212 +195,208 @@
 <body>
 
 <header>
-    <h1>AINCRAD.sys // PROTOCOLO RED</h1>
-    <div class="subtitle">Motor de RPG Offline para Sobrevivência Virtual Letal - V3.0.26</div>
+    <h1>CAVALHEIROS DE CANETA, PAPEL E CÓDIGO</h1>
+    <div class="subtitle">[Um RPG de Mesa Meta-Satírico Baseado em Turnos e Acúmulo de Carboidratos]</div>
 </header>
 
 <div class="container">
     
-    <!-- COLUNA DA ESQUERDA: LIVRO DE REGRAS -->
+    <!-- COLUNA DA ESQUERDA: O MANUAL DO JOGADOR -->
     <main>
         <section class="rules-section">
-            <h2>01. Elementos Fundamentais</h2>
-            <p>Seja bem-vindo ao <strong>AINCRAD.sys</strong>. O hardware falhou, as travas de segurança foram removidas via software e a desconexão manual resulta em morte cerebral instantânea. Este manual físico/offline contém as especificações matemáticas para rodar a simulação na sua mesa.</p>
+            <h2>01. Elementos Fundamentais (A Mesa de Jogo)</h2>
+            <p>Esqueça os gráficos ultra-realistas. Aqui a renderização é baseada na sua imaginação (e na boa vontade do Mestre). O jogo acontece no plano real da sua mesa de jantar:</p>
             <ul>
-                <li><strong>Ficha de Personagem:</strong> O arquivo de dados físico do seu avatar. Use lápis para mapear seus Atributos, PV (Pontos de Vida) e Buffs. Se rasgar, o dado foi corrompido.</li>
-                <li><strong>Dados Poliedricos (D4, D6, d10, D20):</strong> Os geradores de entropia pseudo-aleatória físicos da mesa. O <span class="highlight">D20</span> processa a resolução de ações.</li>
-                <li><strong>Livro de Regras:</strong> Este documento. Suas tabelas e taxas de drop são a lei absoluta da simulação.</li>
-                <li><strong>Escudo do Mestre (The Root Admin):</strong> A barreira física que esconde os monstros ocultos e os algoritmos gerados pelo mestre de jogo.</li>
+                <li><strong>Ficha de Personagem Dual:</strong> Você não joga apenas com o <em>Guerreiro</em>. Você controla o <strong>Jogador Real</strong> (Ex: O Dev Sênior, O Estagiário, A Vovó Gamer) que, por sua vez, controla o <strong>Avatar Virtual</strong> (O Paladino, O Mago, O Ladino).</li>
+                <li><strong>Dados Físicos (O Caos de Plástico):</strong> O <span style="color:var(--accent-color)">D20</span> decide se você acerta o goblin ou se acerta o próprio pé. Se o dado cair embaixo do sofá, o resultado é automaticamente 1.</li>
+                <li><strong>Livro de Regras (Manual com Manchas de Café):</strong> A palavra final do jogo. Contém as tabelas de monstros e o preço abusivo das poções de mana.</li>
+                <li><strong>Escudo do Mestre:</strong> Feito de papelão ou caixas de pizza empilhadas. Atrás dele, o Mestre finge que sabe o que está fazendo enquanto joga monstros aleatórios para punir os jogadores que estão olhando o celular.</li>
             </ul>
         </section>
 
         <section class="rules-section">
-            <h2>02. Ciclo de Jogo (Pipeline de Execução)</h2>
-            <p>A mesa opera em um loop síncrono dividido em 3 etapas de processamento contínuo:</p>
+            <h2>02. Ciclo de Jogo (O Fluxo da Zueira)</h2>
+            <p>O jogo avança através de uma conversa estruturada em três etapas, frequentemente interrompida por piadas ruins:</p>
             <ol>
-                <li><strong>Mestre (Output do Ambiente):</strong> O Administrador narra o estado do cenário. <em>"Vocês entram no andar 74. O Boss 'The Gleam Eyes' está no centro da sala de mármore azul, empunhando uma espada de duas mãos."</em></li>
-                <li><strong>Jogadores (Input de Ação):</strong> Os usuários declaram suas intenções de entrada. <em>"Eu vou usar minha habilidade de código 'Frame_Skip' para flanquear pelas costas dele e desferir um corte vertical."</em></li>
-                <li><strong>Resolução (Processamento de Regra):</strong> O Mestre chama a função de cálculo correspondente exigindo a rolagem física dos dados.</li>
+                <li><strong>O Mestre descreve o ambiente (com voz dramática):</strong> <em>"Vocês entram na Taverna do Dragão Banguelo. O cheiro de hidromel e de código não compilado está no ar."</em></li>
+                <li><strong>Os Jogadores declaram intenção:</strong> <em>"Eu quero subornar o garçom para descobrir onde fica a Masmorra dos Bugs usando meus salgadinhos."</em></li>
+                <li><strong>O Mestre dita a regra:</strong> <em>"Ok, isso requer um teste de Carisma. Role um D20 e torça para eu estar de bom humor."</em></li>
             </ol>
         </section>
 
         <section class="rules-section">
-            <h2>03. Resolução de Ações (A Matemática do Código)</h2>
-            <p>A taxa de sucesso de qualquer operação arriscada na simulação segue a arquitetura matemática padrão de Classe de Dificuldade (CD):</p>
-            <div style="background-color: var(--bg-color); padding: 15px; border-left: 4px solid var(--accent-color); font-weight: bold; margin: 15px 0;">
-                Resultado do Dado (D20) + Modificador do Atributo + Bônus de Perícia >= Classe de Dificuldade (CD)
+            <h2>03. Resolução de Ações (A Matemática Mutável)</h2>
+            <p>Para descobrir se uma ação deu certo, usamos a fórmula clássica de <strong>Classe de Dificuldade (CD)</strong>, com o adicional de que o Mestre pode aumentar a CD se você esquecer de trazer o refrigerante da sessão:</p>
+            <div style="background-color: #1a0e0a; padding: 15px; border-left: 4px solid var(--accent-color); font-weight: bold; margin: 15px 0; text-align: center;">
+                Resultado do Dado (D20) + Atributo do Avatar + Bônus do Jogador Real >= Classe de Dificuldade (CD)
             </div>
-            <p><strong>Exemplo Prático:</strong> Um jogador tenta quebrar uma armadura de cristal. A CD imposta pelo mestre é 16. O jogador rola um 11 no dado físico e possui +5 no atributo <span class="highlight">TEC (Técnica)</span>. Total = 16. Operação executada com sucesso. Se o total fosse 15, a arma ricochetearia, aplicando feedback de choque estático no avatar.</p>
             
-            <h3>Tabela de Dificuldade Padrão (CD)</h3>
+            <div class="meta-note">
+                <strong>Exemplo Prático:</strong> O "Dev Sênior" jogando de "Ladino" tenta desarmar uma armadilha. A CD é 14. Ele rola 10 no dado, soma +3 de Agilidade do Ladino e +2 de "Paciência com Bugs" (bônus do Dev). Total = 15! A armadilha é desarmada e o grupo ganha 20 moedas de ouro.
+            </div>
+
+            <h3>Tabela de Dificuldade Emocional do Mestre</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Nível de Complexidade</th>
+                        <th>Grau da Tarefa</th>
                         <th>CD Alvo</th>
-                        <th>Exemplo de Cenário Operacional</th>
+                        <th>Exemplo Narrativo</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Fácil / Rotineiro</td>
-                        <td>10</td>
-                        <td>Identificar o padrão elementar de um monstro comum.</td>
+                        <td>Fácil Demais</td>
+                        <td>08</td>
+                        <td>Acordar o Guerreiro que dormiu na mesa.</td>
                     </tr>
                     <tr>
-                        <td>Médio / Técnico</td>
-                        <td>15</td>
-                        <td>Arrombar um baú codificado no andar 50.</td>
+                        <td>Aceitável</td>
+                        <td>12</td>
+                        <td>Encontrar Wi-Fi gratuito na masmorra medieval.</td>
                     </tr>
                     <tr>
-                        <td>Difícil / Sobrecarga</td>
-                        <td>20</td>
-                        <td>Esquivar do ataque em área de um Boss de Andar.</td>
+                        <td>Difícil</td>
+                        <td>18</td>
+                        <td>Explicar para o Mestre por que o seu combo dá 200 de dano no nível 1.</td>
                     </tr>
                     <tr>
-                        <td>Impossível / Quebra de Matriz</td>
-                        <td>30</td>
-                        <td>Bloquear o golpe de espada do Administrador do Sistema.</td>
+                        <td>Milagre</td>
+                        <td>25</td>
+                        <td>Fazer a sessão começar no horário combinado.</td>
                     </tr>
                 </tbody>
             </table>
         </section>
 
         <section class="rules-section">
-            <h2>04. Combate Tático e Gestão de Memória (Recursos)</h2>
-            <p>O combate herda a letalidade posicional de *Cyberpunk RED*. Se você for exposto em campo aberto, seu código será deletado.</p>
-            <ul>
-                <li><strong>Iniciativa:</strong> No início do combate, role <code>D20 + Taxa de Quadros (AGI)</code>. A mesa executa os turnos da maior para a menor pontuação.</li>
-                <li><strong>Ações no Turno:</strong> Você possui 1 Ação de Movimento (Mudar de Quadrante no mapa físico) e 1 Ação Principal (Atacar, Injetar código de cura, ou Ativar Mod).</li>
-                <li><strong>Gestão de Recursos a Lápis:</strong> Seus Pontos de Vida (PV) e Energia de Linha (Mana) devem ser atualizados em tempo real na ficha. Use a borracha com cuidado; o desgaste do papel reflete a fadiga física do jogador real.</li>
-            </ul>
-
-            <div class="danger-zone">
-                <h3>ALERTA DE SISTEMA: MORTE PERMANENTE (PERMADEATH)</h3>
-                <p>Neste módulo, não existem magias de ressurreição. Se os Pontos de Vida (PV) do seu avatar chegarem a <strong>0</strong>, o personagem entra em estado de <code>SYSTEM_CRASH</code>. Você tem 3 rodadas para receber um item de cura do tipo "Código_Patch". Se falhar, o hardware na mesa real simula a descarga sináptica: o personagem é apagado definitivamente, e o jogador deve se retirar da mesa da campanha.</p>
-            </div>
-        </section>
-
-        <section class="rules-section">
-            <h2>05. Customização: "Code Hacks" (Substitutos de Implantes)</h2>
-            <p>Em vez de aprimoramentos cibernéticos físicos, os avatares modificam as linhas de código de suas armas e do próprio corpo virtual para espelhar modificações transumanistas:</p>
+            <h2>04. Combate e Upgrades da Mesa</h2>
+            <p>O combate ocorre em turnos baseados em Iniciativa. Em vez de implantes cibernéticos letais, os jogadores gastam o ouro coletado nas masmorras para **comprar móveis melhores e lanches para a vida real**, o que concede buffs permanentes para os personagens no jogo!</p>
             
-            <h3>Tabela de Customização de Código</h3>
+            <h3>Tabela de Upgrades de Lanches e Cenário</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Modificação de Código</th>
-                        <th>Efeito Mecânico (Baseado em Cyberpunk RED)</th>
-                        <th>Custo de Memória RAM</th>
+                        <th>Upgrade da Mesa (Lanche/Móvel)</th>
+                        <th>Efeito no Avatar (Mecânica)</th>
+                        <th>Preço em Ouro</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><span class="highlight">Frame_Skip.dll</span></td>
-                        <td>Permite realizar uma Ação Principal extra por rodada uma vez por combate. (+Aceleração sináptica)</td>
-                        <td>3 Slots</td>
+                        <td><strong>Combo Pizza + Refri 2L</strong></td>
+                        <td>+10 de HP Máximo para todo mundo (Açúcar e Carboidrato puro).</td>
+                        <td>150 PO</td>
                     </tr>
                     <tr>
-                        <td><span class="highlight">Ice_Barrier.patch</span></td>
-                        <td>Adiciona +4 de Blindagem Abstrata contra ataques mágicos ou físicos. Reduz em 1 ponto a cada dano sofrido.</td>
-                        <td>2 Slots</td>
+                        <td><strong>Cadeira Gamer Ergonômica</strong></td>
+                        <td>+2 em testes de Iniciativa (Suas costas não doem mais).</td>
+                        <td>300 PO</td>
                     </tr>
                     <tr>
-                        <td><span class="highlight">Sword_Savant.exe</span></td>
-                        <td>Maestria de Arma Crítica. Ignora metade da defesa de alvos de armadura pesada ao usar espadas.</td>
-                        <td>4 Slots</td>
+                        <td><strong>Salgadinho que Suja os Dedos</strong></td>
+                        <td>+1 de Dano Físico, mas -1 em Furtividade (Dedos engordurados).</td>
+                        <td>50 PO</td>
                     </tr>
                     <tr>
-                        <td><span class="highlight">Overclock_Sináptico</span></td>
-                        <td>Sacrifica 5 PV temporariamente para garantir um bônus de +3 em qualquer teste de perícia física ou de ataque.</td>
-                        <td>2 Slots</td>
+                        <td><strong>Cafeteira Expresso na Mesa</strong></td>
+                        <td>Os Magos recuperam +5 de Mana por turno (Foco total).</td>
+                        <td>400 PO</td>
                     </tr>
                 </tbody>
             </table>
         </section>
     </main>
 
-    <!-- COLUNA DA DIREITA: FERRAMENTAS INTERATIVAS (MESA DE JOGO) -->
+    <!-- COLUNA DA DIREITA: FICHA META E DADOS -->
     <aside class="sidebar">
         
-        <!-- COMPILADOR DE DADOS -->
+        <!-- O ROQUEIRO DE DADOS DO MESTRE -->
         <div class="interactive-panel">
-            <h2>[Gerador de Entropia]</h2>
+            <h2>[Rolar Dados]</h2>
             <div class="form-group">
-                <label for="dice-type">Selecionar Hardware (Dado):</label>
-                <select id="dice-type">
-                    <option value="20">D20 (Resolução Geral)</option>
-                    <option value="12">D12 (Dano Pesado)</option>
-                    <option value="10">D10 (Percentual/Iniciativa)</option>
-                    <option value="8">D8 (Dano Médio)</option>
-                    <option value="6">D6 (Dano Leve / Utilitários)</option>
-                    <option value="4">D4 (Efeitos de Status)</option>
+                <label for="dice-select">Escolha o Dado:</label>
+                <select id="dice-select">
+                    <option value="20">D20 (Testar a Sorte)</option>
+                    <option value="8">D8 (Espada Longa)</option>
+                    <option value="6">D6 (Bola de Fogo / Piada Ruim)</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="dice-mod">Modificador de Código (Bônus):</label>
-                <input type="number" id="dice-mod" value="0">
+                <label for="char-bonus">Bônus do Jogador:</label>
+                <input type="number" id="char-bonus" value="2">
             </div>
-            <button class="btn" onclick="rollDice()">EXECUTAR ROLAGEM</button>
-            <div class="dice-log" id="dice-log">
-                > Sistema online. Aguardando input de dados...
+            <button class="btn" onclick="rollMetaDice()">ROLAR NA MESA</button>
+            <div class="dice-log" id="meta-log">
+                > Mesa limpa. Os salgadinhos estão servidos.
             </div>
         </div>
 
-        <!-- FICHA DE PERSONAGEM COMPACTA -->
+        <!-- FICHA DO JOGADOR / AVATAR -->
         <div class="interactive-panel">
-            <h2>[Avatar.cfg]</h2>
+            <h2>[Ficha de Mesa]</h2>
             <div class="form-group">
-                <label>Nome do Usuário:</label>
-                <input type="text" value="Kirito_Clone_01">
+                <label>Jogador Real:</label>
+                <select id="player-type" onchange="updatePlayerBonus()">
+                    <option value="2">O Dev Sênior (+2 Tec) </option>
+                    <option value="3">O Min-Maxer (+3 Combo)</option>
+                    <option value="1">O Cara da Pizza (+1 Redução de Dano)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Classe do Avatar:</label>
+                <input type="text" value="Mago do Script">
             </div>
             <div class="stat-grid">
                 <div class="form-group">
-                    <label>FOR (Força):</label>
-                    <input type="number" id="char-for" value="4">
+                    <label>HP (Pontos de Vida):</label>
+                    <input type="number" value="30">
                 </div>
                 <div class="form-group">
-                    <label>AGI (Agilidade):</label>
-                    <input type="number" id="char-agi" value="5">
+                    <label>Mana / Café:</label>
+                    <input type="number" value="15">
                 </div>
-                <div class="form-group">
-                    <label>VIT (Vitalidade):</label>
-                    <input type="number" id="char-vit" value="3">
-                </div>
-                <div class="form-group">
-                    <label>TEC (Técnica):</label>
-                    <input type="number" id="char-tec" value="2">
-                </div>
-            </div>
-            <div class="form-group" style="margin-top: 10px;">
-                <label style="color: var(--damage-color);">PV Atual (Buffer de Vida):</label>
-                <input type="number" value="45" style="border-color: var(--damage-color); color: var(--damage-color);">
             </div>
             <div class="form-group">
-                <label>Modificadores Instalados:</label>
-                <input type="text" value="Frame_Skip.dll, Sword_Savant.exe" style="font-size: 0.8rem;">
+                <label>Upgrades Ativos na Mesa:</label>
+                <input type="text" value="Pizza de Calabresa, Cadeira Velha">
             </div>
-            <button class="btn" style="border-color: var(--damage-color); color: var(--damage-color);" onclick="triggerCrash()">SIMULAR SYSTEM_CRASH</button>
+            <button class="btn" style="background-color: var(--meta-color); color: #000;" onclick="bribeGM()">SUBORNAR O MESTRE</button>
         </div>
     </aside>
 </div>
 
 <script>
-    function rollDice() {
-        const diceType = parseInt(document.getElementById('dice-type').value);
-        const mod = parseInt(document.getElementById('dice-mod').value) || 0;
-        const roll = Math.floor(Math.random() * diceType) + 1;
-        const total = roll + mod;
-        
-        const log = document.getElementById('dice-log');
-        let status = total >= 15 ? "<span style='color: var(--accent-color);'>[SUCCESS]</span>" : "<span style='color: var(--damage-color);'>[FAILED]</span>";
-        
-        log.innerHTML = `> Rolado D${diceType}: Resultado [${roll}] + Mod [${mod}] = <strong>${total}</strong> ${status}<br>` + log.innerHTML;
+    function updatePlayerBonus() {
+        const bonus = document.getElementById('player-type').value;
+        document.getElementById('char-bonus').value = bonus;
     }
 
-    function triggerCrash() {
-        const log = document.getElementById('dice-log');
-        log.innerHTML = `<span style='color: var(--damage-color); animate: blink 1s infinite;'>[CRITICAL ERROR] LOG_OUT BLOQUEADO. SINAIS VITAIS EM QUEDA. INCIE O PROTOCOLO DE SUPORTE FISICO NA MESA DE JOGO IMEDIATAMENTE!</span><br>` + log.innerHTML;
+    function rollMetaDice() {
+        const dice = parseInt(document.getElementById('dice-select').value);
+        const bonus = parseInt(document.getElementById('char-bonus').value) || 0;
+        const roll = Math.floor(Math.random() * dice) + 1;
+        const total = roll + bonus;
+        
+        const log = document.getElementById('meta-log');
+        let txt = "";
+
+        if (roll === 20) {
+            txt = `<span style='color: var(--success-color);'>[CRÍTICO!] O Mestre chorou. Você destruiu a campanha!</span>`;
+        } else if (roll === 1) {
+            txt = `<span style='color: var(--fail-color);'>[FALHA CRÍTICA] Você derrubou refrigerante no manual!</span>`;
+        } else if (total >= 14) {
+            txt = `<span style='color: var(--success-color);'>[SUCESSO] Passou raspando.</span>`;
+        } else {
+            txt = `<span style='color: var(--fail-color);'>[ERROU] O Mestre riu da sua cara.</span>`;
+        }
+
+        log.innerHTML = `> Rolo D${dice}: [${roll}] + Bônus [${bonus}] = <strong>${total}</strong><br>${txt}<br><br>` + log.innerHTML;
+    }
+
+    function bribeGM() {
+        const log = document.getElementById('meta-log');
+        log.innerHTML = `> <span style='color: var(--accent-color);'>[SUBORNO] Você ofereceu o último pedaço de pizza. O Mestre concedeu +2 de bônus na próxima jogada!</span><br><br>` + log.innerHTML;
     }
 </script>
 
