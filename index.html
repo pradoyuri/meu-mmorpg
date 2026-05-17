@@ -3,346 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAO: Aincrad Matrix // Full-Dive OS v3.5</title>
+    <title>SAO: Aincrad OS // System Kernel v4.0</title>
     <style>
         :root {
             --sao-orange: #ff7f00;
-            --sao-bg: #eef2f5;
-            --sao-dark-text: #2c3e50;
-            --sao-panel-bg: #ffffff;
-            --sao-teal: #00cfb4;
+            --sao-bg: #f5f7fa;
+            --sao-text: #2c3e50;
+            --sao-panel: #ffffff;
+            --sao-teal: #00d2ff;
             --hp-green: #2ecc71;
             --hp-yellow: #f1c40f;
             --hp-red: #e74c3c;
-            --border: #dcdde1;
+            --border: #d2d7df;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--sao-bg); color: var(--sao-dark-text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--sao-bg); color: var(--sao-text); padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
         .hidden { display: none !important; }
         
-        header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--sao-orange); padding-bottom: 10px; margin-bottom: 15px; }
-        header h1 { font-size: 1.6rem; color: var(--sao-dark-text); font-weight: 300; letter-spacing: 2px; }
+        header { width: 100%; max-width: 950px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--sao-orange); padding-bottom: 8px; margin-bottom: 15px; }
+        header h1 { font-size: 1.4rem; font-weight: 300; letter-spacing: 2px; }
         header h1 span { color: var(--sao-orange); font-weight: bold; }
 
-        /* Estética SAO */
-        .panel { background: var(--sao-panel-bg); border-radius: 8px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid var(--border); margin-bottom: 15px; position: relative; overflow: hidden; }
+        /* Sistema de Abas Estilo Menu Flutuante SAO */
+        .sao-menu-bar { display: flex; width: 100%; max-width: 950px; gap: 8px; margin-bottom: 15px; }
+        .sao-menu-btn { flex: 1; background: var(--sao-panel); border: 1px solid var(--border); padding: 12px; font-weight: bold; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; border-radius: 6px; transition: all 0.2s; color: var(--sao-text); }
+        .sao-menu-btn.active { background: var(--sao-orange); color: white; border-color: var(--sao-orange); box-shadow: 0 4px 12px rgba(255,127,0,0.2); }
+
+        .game-container { width: 100%; max-width: 950px; }
+        .panel { background: var(--sao-panel); border-radius: 8px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 15px; position: relative; }
         .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--sao-orange); }
         .panel.danger::before { background: var(--hp-red); }
-        .panel.quest::before { background: var(--sao-teal); }
+        .panel.pk-event::before { background: #8e44ad; }
 
-        h2 { font-size: 1rem; color: var(--sao-dark-text); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        h2 { font-size: 0.95rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; }
 
-        .game-grid { width: 100%; max-width: 1000px; display: grid; grid-template-columns: 1fr; gap: 15px; }
-        @media (min-width: 768px) { .game-grid { grid-template-columns: 1.6fr 1.4fr; } }
-
-        /* Barras */
-        .hp-container { background: #dcdde1; height: 16px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid #b2bec3; }
-        .hp-bar { height: 100%; width: 100%; background: var(--hp-green); transition: width 0.4s ease, background-color 0.3s; }
+        /* Barras de Vida Estilizadas */
+        .hp-container { background: #e2e8f0; height: 16px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid #cbd5e1; }
+        .hp-bar { height: 100%; width: 100%; background: var(--hp-green); transition: width 0.3s ease; }
         
-        .console-wrapper { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-        @media(min-width: 600px) { .console-wrapper { grid-template-columns: 1fr 1fr; } }
+        .console-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 10px; }
+        @media(min-width: 768px) { .console-grid { grid-template-columns: 1fr 1fr; } }
         
-        .console { background: #2f3640; border-radius: 6px; height: 150px; overflow-y: auto; padding: 12px; font-size: 0.8rem; color: #f5f6fa; list-style: none; }
-        .console.network { color: var(--sao-teal); background: #1e272e; }
-        .console-line { margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .console { background: #1e272e; border-radius: 6px; height: 140px; overflow-y: auto; padding: 12px; font-size: 0.8rem; color: #f5f6fa; list-style: none; }
+        .console.network { color: #00d2ff; background: #2c3e50; }
+        .console-line { margin-bottom: 5px; border-bottom: 1px dashed rgba(255,255,255,0.08); padding-bottom: 3px; }
 
         .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        button { background: #ffffff; color: var(--sao-dark-text); border: 2px solid var(--border); padding: 10px; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-size: 0.75rem; transition: all 0.2s; }
-        button:hover { border-color: var(--sao-orange); color: var(--sao-orange); background: rgba(255,127,0,0.02); }
+        button { background: white; color: var(--sao-text); border: 1px solid var(--border); padding: 10px; font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase; font-size: 0.75rem; transition: all 0.2s; }
+        button:hover { border-color: var(--sao-orange); color: var(--sao-orange); }
         button.action-btn { background: var(--sao-orange); color: white; border: none; }
         button.action-btn:hover { background: #e06f00; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
         
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px 12px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #edf2f7; font-size: 0.85rem; }
-        
-        /* Modais */
-        .battle-overlay { background: rgba(44, 62, 80, 0.95); position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 20px; }
-        .battle-window { background: white; width: 100%; max-width: 550px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-top: 6px solid var(--hp-red); }
+        /* Modal de Combate Emergencial */
+        .battle-overlay { background: rgba(30, 39, 46, 0.98); position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
+        .battle-window { background: white; width: 100%; max-width: 520px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-top: 6px solid var(--hp-red); }
     </style>
 </head>
 <body>
 
-    <!-- AUTENTICAÇÃO -->
-    <div class="panel creation-container" id="screen-creation" style="width:100%; max-width:450px; margin-top:50px;">
-        <h2>[NERVEGEAR v3.5] MATRIX START</h2>
-        <div class="form-group" style="margin-bottom:15px;">
-            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:5px;">Nome do Avatar</label>
-            <input type="text" id="input-name" style="width:100%; padding:12px; border:2px solid #dcdde1; border-radius:6px;" placeholder="Digite seu ID de sobrevivente...">
+    <!-- TELA REGISTRO INICIAL -->
+    <div class="panel" id="screen-creation" style="width:100%; max-width:420px; margin-top:60px;">
+        <h2>[NERVEGEAR INTEGRATION] CONFIG</h2>
+        <div style="margin-bottom:12px;">
+            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Assinatura Digital (Name)</label>
+            <input type="text" id="input-name" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px;" placeholder="Seu ID no jogo...">
         </div>
-        <div class="form-group" style="margin-bottom:20px;">
-            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:5px;">Especialização de Arma</label>
-            <select id="input-class" style="width:100%; padding:12px; border:2px solid #dcdde1; border-radius:6px; background:white;">
+        <div style="margin-bottom:18px;">
+            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Estrutura de Arma Inicial</label>
+            <select id="input-class" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; background:white;">
                 <option value="espada_1h">Espada de Uma Mão (Equilibrado + Escudo)</option>
                 <option value="florete">Florete (Dano Perfurante Veloz)</option>
-                <option value="adaga">Adaga (Críticos & Reconhecimento)</option>
-                <option value="espada_2h">Espada de Duas Mãos (Dano Massivo)</option>
-                <option value="martelo">Martelo de Guerra (Quebra de Defesa)</option>
-                <option value="lanca">Lança (Estocada de Longo Alcance)</option>
-                <option value="cimitarra">Cimitarra Curva (Cortes em Área)</option>
+                <option value="adaga">Adaga (Críticos & Furtividade)</option>
+                <option value="espada_2h">Espada de Duas Mãos (Dano Pesado)</option>
+                <option value="martelo">Martelo de Guerra (Esmagar Armadura)</option>
+                <option value="lanca">Lança de Linha (Longo Alcance)</option>
+                <option value="cimitarra">Cimitarra Curva (Cortes Amplos)</option>
             </select>
         </div>
-        <button class="action-btn" style="width:100%; padding:14px;" onclick="createNewCharacter()">LINK START</button>
+        <button class="action-btn" style="width:100%; padding:12px;" onclick="createNewCharacter()">LINK START</button>
     </div>
 
-    <!-- INSTÂNCIA DE AINCRAD -->
-    <div class="game-grid hidden" id="screen-main">
-        
-        <!-- MATRIZ ESQUERDA -->
-        <div class="main-column">
-            <header>
-                <h1>SWORD ART <span>ONLINE</span></h1>
-                <div id="hud-floor" style="font-weight: bold; color: var(--sao-orange);">ANDAR 1</div>
-            </header>
+    <!-- PAINEL DE CONTROLE DE AINCRAD -->
+    <div class="game-container hidden" id="screen-main">
+        <header>
+            <h1>AINCRAD <span>INTERFACE</span></h1>
+            <div id="hud-floor" style="font-weight:bold; color:var(--sao-orange);">ANDAR 1</div>
+        </header>
 
-            <!-- Status -->
-            <div class="panel" id="status-panel">
-                <h2>
-                    <span id="hud-name">Player</span>
-                    <span id="hud-level" style="color: var(--sao-orange)">LV 1</span>
-                </h2>
-                <div style="font-size: 0.8rem; color:#7f8c8d; margin-bottom:10px;">
-                    Classe: <span id="hud-class" style="color:#2c3e50; font-weight:bold;">-</span> | XP: <span id="hud-xp">0/100</span>
+        <!-- Menu Estilo SAO -->
+        <div class="sao-menu-bar">
+            <button class="sao-menu-btn active" id="tab-btn-status" onclick="switchTab('status')">Status</button>
+            <button class="sao-menu-btn" id="tab-btn-field" onclick="switchTab('field')">Zonas de Campo</button>
+            <button class="sao-menu-btn" id="tab-btn-craft" onclick="switchTab('craft')">Forja & Inventário</button>
+        </div>
+
+        <!-- ABA 1: STATUS DO AVATAR -->
+        <div id="tab-status" class="tab-content">
+            <div class="panel">
+                <h2><span id="hud-name">Player</span> <span id="hud-level" style="color:var(--sao-orange)">LV 1</span></h2>
+                <div style="font-size:0.8rem; color:#7f8c8d; margin-bottom:12px;">
+                    Árvore Logada: <span id="hud-class" style="color:#2c3e50; font-weight:bold;">-</span> | XP: <span id="hud-xp">0/100</span>
                 </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:bold; margin-bottom: 5px;">
-                    <span>ATK: <span id="hud-atk" style="color:var(--sao-orange)">12</span></span>
-                    <span>DEF: <span id="hud-def" style="color:var(--sao-teal)">5</span></span>
+                <div class="item-row"><span>Poder Base de Ataque (ATK)</span><strong id="hud-atk">12</strong></div>
+                <div class="item-row"><span>Matriz de Defesa Sólida (DEF)</span><strong id="hud-def">5</strong></div>
+                <div class="item-row" style="background: rgba(0, 210, 255, 0.05); border-color: var(--sao-teal);">
+                    <span>Proficiência de Arma (Mastery)</span>
+                    <strong id="hud-mastery" style="color:var(--sao-teal);">0.0%</strong>
                 </div>
+
                 <div class="hp-container"><div class="hp-bar" id="hud-hp-fill"></div></div>
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;">
-                    <span>SINAL VITAL (HP)</span>
+                    <span>SINAL NEURAL (HP)</span>
                     <span id="hud-hp-text">100/100</span>
-                </div>
-
-                <div class="btn-grid">
-                    <button onclick="triggerActivity('farm')">Explorar Periferia</button>
-                    <button onclick="triggerActivity('gather')">Coletar Alimentos</button>
-                    <button onclick="startCombat(false)" class="action-btn">Entrar no Labirinto</button>
-                    <button onclick="restAtInn()" style="border-color: #3498db; color: #3498db;">Ir para a Estalagem</button>
-                </div>
-                <button onclick="startCombat(true)" style="width:100%; margin-top:10px; background:#e74c3c; color:white; border:none;">Desafiar Chefe do Andar</button>
-            </div>
-
-            <!-- Monitor de Missão Ativa -->
-            <div class="panel quest" id="active-quest-panel">
-                <h2>Contrato Ativo</h2>
-                <div id="active-quest-details">
-                    <p style="font-size:0.85rem; font-style:italic; color:#7f8c8d;">Nenhuma missão aceita no Quadro de Avisos.</p>
-                </div>
-            </div>
-
-            <!-- Terminais -->
-            <div class="console-wrapper">
-                <div class="panel" style="margin-bottom:0;">
-                    <h2>Logs Pessoais</h2>
-                    <div class="console" id="personal-log"></div>
-                </div>
-                <div class="panel" style="margin-bottom:0;">
-                    <h2>Linha de Frente</h2>
-                    <div class="console network" id="network-log"></div>
                 </div>
             </div>
         </div>
 
-        <!-- MATRIZ DIREITA -->
-        <div class="side-column">
-            <!-- Inventário -->
+        <!-- ABA 2: ZONAS DE CAMPO & MISSÕES -->
+        <div id="tab-field" class="tab-content hidden">
             <div class="panel">
-                <h2>Armazenamento de Dados</h2>
-                <div class="item-row"><span>Minério Raro</span><strong id="mat-iron">0</strong></div>
+                <h2>Ações de Varredura e Exploração</h2>
+                <p style="font-size:0.8rem; color:#7f8c8d; margin-bottom:10px;">Entre nas instâncias táticas para obter insumos ou forçar o avanço da linha de frente.</p>
+                <div class="btn-grid">
+                    <button onclick="triggerActivity('farm')">Varrer Periferia</button>
+                    <button onclick="triggerActivity('gather')">Coletar Alimentos</button>
+                    <button onclick="startCombat(false)" class="action-btn">Adentrar Labirinto</button>
+                    <button onclick="restAtInn()" style="color:#3498db; border-color:#3498db;">Alugar Quarto na Estalagem</button>
+                </div>
+                <button onclick="startCombat(true)" style="width:100%; margin-top:10px; background:var(--hp-red); color:white; border:none;">Desafiar Boss do Andar</button>
+            </div>
+
+            <div class="panel" style="border-left: 4px solid var(--sao-teal);">
+                <h2>Quadro de Missões Ativas</h2>
+                <div id="quest-system-box" style="font-size:0.85rem;"></div>
+            </div>
+        </div>
+
+        <!-- ABA 3: FORJA & INVENTÁRIO -->
+        <div id="tab-craft" class="tab-content hidden">
+            <div class="panel">
+                <h2>Armazenamento de Insumos</h2>
+                <div class="item-row"><span>Minério Raro Corrente</span><strong id="mat-iron">0</strong></div>
                 <div class="item-row"><span>Ingredientes Culinários</span><strong id="mat-food">0</strong></div>
-                <div class="item-row"><span>Cristais de Teleporte</span><strong id="mat-crystal">1</strong></div>
-                <div style="font-size:0.8rem; font-weight:bold; margin-top:10px; color:var(--sao-orange);">Acessórios Raros Guardados:</div>
-                <div id="rare-loot-list" style="font-size:0.8rem; color:#7f8c8d; margin-top:5px; line-height:1.4;">Nenhum drop raro coletado.</div>
+                <div class="item-row"><span>Cristais de Fuga (Teleport)</span><strong id="mat-crystal">1</strong></div>
+                
+                <div style="font-size:0.8rem; font-weight:bold; margin-top:12px; color:var(--sao-orange);">Equipamentos Especiais & LA Bonus:</div>
+                <div id="rare-loot-list" style="font-size:0.8rem; color:#7f8c8d; margin-top:5px; line-height:1.5;">Nenhum acessório ou prêmio exclusivo coletado.</div>
             </div>
 
-            <!-- Quadro de Missões Secundárias -->
-            <div class="panel quest">
-                <h2>Quadro de Missões (NPCs)</h2>
-                <div id="quest-board-list">
-                    <!-- Gerado via JavaScript -->
-                </div>
-            </div>
-
-            <!-- Oficina -->
             <div class="panel">
-                <h2>Oficina de Produção</h2>
-                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:5px;">
-                    <div style="display:flex; justify-content:space-between; width:100%;">
+                <h2>Matriz de Produção Tática</h2>
+                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                         <span id="craft-weapon-label" style="font-weight:bold;">[Arma]</span>
-                        <button onclick="craftItem('weapon')" style="padding:4px 8px;">Forjar</button>
+                        <button onclick="craftItem('weapon')" style="padding:4px 8px;">Forjar Lâmina</button>
                     </div>
+                    <span style="font-size:0.7rem; color:#7f8c8d;">Custo: 3 Minérios</span>
                 </div>
-                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:5px;">
-                    <div style="display:flex; justify-content:space-between; width:100%;">
+                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
                         <span id="craft-armor-label" style="font-weight:bold;">[Armadura]</span>
-                        <button onclick="craftItem('armor')" style="padding:4px 8px;">Curtir</button>
+                        <button onclick="craftItem('armor')" style="padding:4px 8px;">Curtir Placas</button>
                     </div>
+                    <span style="font-size:0.7rem; color:#7f8c8d;">Custo: 2 Minérios, 1 Alimento</span>
                 </div>
-                <div style="margin-top:10px; font-size:0.8rem;">
-                    <div>Arma: <span id="eq-weapon" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
-                    <div>Corpo: <span id="eq-armor" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
+                <div style="margin-top:10px; font-size:0.8rem; border-top:1px solid #eee; padding-top:8px;">
+                    <div>Arma Empunhada: <span id="eq-weapon" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
+                    <div>Proteção Corporal: <span id="eq-armor" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
                 </div>
             </div>
-            <button onclick="wipeCharacter()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:8px; font-size:0.7rem;">[Forçar Desconexão / Purgar Cache]</button>
+            <button onclick="wipeCharacter()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:10px; font-size:0.7rem;">[FORÇAR DESCONEXÃO SÚBITA / WIPE]</button>
+        </div>
+
+        <!-- CONSOLES PARALELOS REATIVOS -->
+        <div class="console-grid">
+            <div class="panel" style="margin-bottom:0;">
+                <h2>Registros de Operações</h2>
+                <div class="console" id="personal-log"></div>
+            </div>
+            <div class="panel" style="margin-bottom:0;">
+                <h2>Rede de Comunicação da Vanguarda</h2>
+                <div class="console network" id="network-log"></div>
+            </div>
         </div>
     </div>
 
-    <!-- TELA DE COMBATE -->
+    <!-- TELA DE COMBATE EM TEMPO REAL -->
     <div class="battle-overlay hidden" id="battle-screen">
-        <div class="battle-window">
-            <h2 style="color:var(--hp-red);"><span>EM COMBATE ATIVO</span> <span id="battle-loot-chance" style="font-size:0.7rem; color:var(--sao-orange);"></span></h2>
-            <div style="background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid var(--border); margin-bottom:15px;">
-                <div style="font-weight:bold; font-size:1.1rem;" id="enemy-name">-</div>
+        <div class="battle-window" id="battle-window-frame">
+            <h2 style="color:var(--hp-red);"><span id="battle-header-title">EM COMBATE ATIVO</span> <span id="battle-loot-chance" style="font-size:0.7rem; color:var(--sao-orange);"></span></h2>
+            <div style="background:#f8fafc; padding:12px; border-radius:6px; border:1px solid var(--border); margin-bottom:12px;">
+                <div style="font-weight:bold; font-size:1rem;" id="enemy-name">-</div>
                 <div class="hp-container" style="height:10px;"><div class="hp-bar" id="enemy-hp-fill" style="background:var(--hp-red);"></div></div>
                 <div style="text-align:right; font-size:0.75rem; font-weight:bold;" id="enemy-hp-text">-</div>
             </div>
-            <div style="margin-bottom:15px; font-size:0.85rem; height:50px; overflow-y:auto; color:#7f8c8d;" id="battle-status-text">-</div>
+            <div style="margin-bottom:15px; font-size:0.8rem; height:50px; overflow-y:auto; color:#64748b; line-height:1.4;" id="battle-status-text">-</div>
             <div class="btn-grid">
                 <button class="action-btn" onclick="executeCombatTurn('attack')">Ataque Padrão</button>
                 <button id="btn-battle-skill" style="background:var(--sao-teal); color:white; border:none;" onclick="executeCombatTurn('skill')">Skill</button>
                 <button onclick="executeCombatTurn('defend')">Parry</button>
-                <button style="background:#3498db; color:white; border:none;" onclick="executeCombatTurn('escape')">Usar Cristal</button>
+                <button style="background:#3498db; color:white; border:none;" onclick="executeCombatTurn('escape')">Usar Cristal Fuga</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuração e Banco de Dados de Monstros e Drops Raros por Faixa de Andar
+        // Banco de Dados Estendido do Universo
         const monsterDatabase = {
-            low: [
-                { name: "Lobo da Presa Ruína", hp: 35, atk: 9, dropItem: "Anel do Vento Límpido (+1 DEF)" },
-                { name: "Verme Mineiro de Tolbana", hp: 50, atk: 12, dropItem: "Pingente de Estancamento (+10 HP Max)" }
-            ],
-            mid: [
-                { name: "Serpente Terrestre de Kagachi", hp: 130, atk: 26, dropItem: "Lâmina de Anneal (+8 ATK)" },
-                { name: "Golem de Quartzo do Labirinto", hp: 210, atk: 20, dropItem: "Amuleto de Pedra (+3 DEF)" }
-            ],
-            high: [
-                { name: "Cavaleiro do Caixão Corrompido", hp: 360, atk: 48, dropItem: "Casaco do Destino Negro (+10 DEF)" },
-                { name: "Dragão de Cristal das Neves", hp: 440, atk: 58, dropItem: "Espada Repulsora de Luz (+20 ATK)" }
-            ]
+            low: [{ name: "Lobo Ruivo das Estepes", hp: 40, atk: 10, drop: "Anel do Vento Escasso (+1 DEF)" }],
+            mid: [{ name: "Lagarto da Armadura de Silício", hp: 140, atk: 25, drop: "Pingente da Guilda Fuurinkazan (+5 ATK)" }],
+            high: [{ name: "Guerreiro de Elite Demôniaco", hp: 380, atk: 52, drop: "Amuleto do Coração Sagrado (+20 HP)" }]
+        };
+
+        const bossDatabase = {
+            1: { name: "Illfang, o Senhor dos Kobolds", laBonus: "Casaco da Meia-Noite (LA Bonus) [+5 DEF]" },
+            10: { name: "Kagachi, o Samurai de Olhos Rubros", laBonus: "Cimitarra de Muramasa (LA Bonus) [+15 ATK]" },
+            25: { name: "O Ceifador de Almas Enclausurado", laBonus: "Anel do Conquistador (LA Bonus) [+40 HP]" },
+            50: { name: "The Gleam Eyes (O Demônio de Chifres)", laBonus: "Lâmina Elucidator (LA Bonus) [+35 ATK]" },
+            75: { name: "The Skull Reaper (O Verme de Ossos)", laBonus: "Armadura do Abraço Divino (LA Bonus) [+30 DEF]" }
         };
 
         const questDatabase = [
-            { id: 1, npc: "Argo, a Rata", title: "Suborno de Informação", desc: "Reúna 3 Insumos Culinários para comprar dados do Boss.", type: "gather", target: 3, rewardXp: 50, rewardCrystal: 1 },
-            { id: 2, npc: "Egil, o Comerciante", title: "Suprimentos de Ligas", desc: "Entregue 4 Minérios Raros para a forja da guilda.", type: "iron", target: 4, rewardXp: 80, rewardCrystal: 0 },
-            { id: 3, npc: "Líder da Vanguarda", title: "Limpeza Estratégica", desc: "Elimine 3 Monstros do Labirinto para liberar o avanço.", type: "kill", target: 3, rewardXp: 120, rewardCrystal: 1 }
+            { id: 1, npc: "Argo, a Rata", title: "Compilação de Dados", type: "gather", target: 3, xp: 60, crystal: 1 },
+            { id: 2, npc: "Egil", title: "Negociação de Metais", type: "iron", target: 4, xp: 90, crystal: 0 }
         ];
 
         let player = {
             name: "", classId: "", className: "", level: 1, xp: 0, nextLevelXp: 100,
-            hp: 100, maxHp: 100, atk: 12, def: 5, floor: 1,
+            hp: 100, maxHp: 100, atk: 12, def: 5, floor: 1, mastery: 0.0,
             materials: { iron: 0, food: 0, crystal: 1 },
-            equipment: { weapon: "Espada Curta de Ferro", armor: "Manto de Aprendiz" },
-            rares: [],
-            activeQuest: null
+            equipment: { weapon: "Espada de Ferro Inicial", armor: "Manto de Aprendiz" },
+            rares: [], activeQuest: null
         };
 
         let currentEnemy = null;
 
         const classDefinitions = {
             espada_1h: { name: "Espada de Uma Mão", hp: 120, atk: 12, def: 8, skill: "Horizontal Square" },
-            florete:   { name: "Florete", hp: 100, atk: 16, def: 4, skill: "Linear" },
-            adaga:     { name: "Adaga", hp: 95, atk: 14, def: 5, skill: "Rapid Bite" },
-            espada_2h: { name: "Espada de Duas Mãos", hp: 140, atk: 22, def: 2, skill: "Avalanche" },
-            martelo:   { name: "Martelo de Guerra", hp: 130, atk: 15, def: 7, skill: "Armor Break" },
+            florete:   { name: "Florete", hp: 100, atk: 16, def: 4, skill: "Linear Strike" },
+            adaga:     { name: "Adaga", hp: 95, atk: 14, def: 5, skill: "Shadow Stitch" },
+            espada_2h: { name: "Espada de Duas Mãos", hp: 140, atk: 22, def: 2, skill: "Avalanche Smash" },
+            martelo:   { name: "Martelo de Guerra", hp: 130, atk: 15, def: 7, skill: "Meteor Break" },
             lanca:     { name: "Lança", hp: 115, atk: 14, def: 6, skill: "Spiral Thrust" },
-            cimitarra: { name: "Cimitarra", hp: 110, atk: 15, def: 5, skill: "Reaver" }
+            cimitarra: { name: "Cimitarra", hp: 110, atk: 15, def: 5, skill: "Reaver Slash" }
         };
 
-        const bossNames = { 1: "Illfang, o Senhor dos Kobolds", 10: "Kagachi, o Samurai", 25: "O Ceifador", 50: "The Gleam Eyes", 75: "The Skull Reaper" };
-
-        function getTierNames(floor) {
-            if (floor >= 50) return { weapon: "Elucidator Prototipada", armor: "Manto Black Wyrm" };
-            if (floor >= 25) return { weapon: "Lâmina de Aço Negro", armor: "Couraça de Prata" };
-            if (floor >= 10) return { weapon: "Glaive de Bronze Guardião", armor: "Casaco da Meia Noite" };
-            return { weapon: "Lâmina de Ferro Forjado", armor: "Armadura Leve de Couro" };
+        // Controlador de Alternância das Abas Holográficas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sao-menu-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
         }
 
         function createNewCharacter() {
             const nameInput = document.getElementById('input-name').value.trim();
-            if (!nameInput) { alert("ID obrigatória para link neural."); return; }
+            if (!nameInput) { alert("Assinatura obrigatória para link neural."); return; }
 
-            const selectedClass = document.getElementById('input-class').value;
-            const cDef = classDefinitions[selectedClass];
+            const cId = document.getElementById('input-class').value;
+            const cDef = classDefinitions[cId];
 
-            player.name = nameInput;
-            player.classId = selectedClass;
-            player.className = cDef.name;
-            player.maxHp = cDef.hp;
-            player.hp = cDef.hp;
-            player.atk = cDef.atk;
-            player.def = cDef.def;
+            player.name = nameInput; player.classId = cId; player.className = cDef.name;
+            player.maxHp = cDef.hp; player.hp = cDef.hp; player.atk = cDef.atk; player.def = cDef.def;
 
             document.getElementById('screen-creation').classList.add('hidden');
             document.getElementById('screen-main').classList.remove('hidden');
 
-            logPersonal(`Link Start concluído. Instanciando ${player.name} no Andar 1.`);
-            updateUI();
-            saveGame();
+            logPersonal(`Link Start estabelecido. Registro sincronizado sob ID: ${player.name}`);
+            updateUI(); saveGame();
         }
 
-        // Loop de Ações e Incremento das Missões
+        // Sistema de Campo Tradicional
         function triggerActivity(type) {
             if (player.hp <= 0) return;
-
             if (type === 'farm') {
-                const ironFound = Math.floor(Math.random() * 2) + 1;
-                player.materials.iron += ironFound;
-                logPersonal(`Explorando Periferia: Encontrou +${ironFound} Minério Raro.`);
-                checkQuestProgress("iron", ironFound);
+                const iron = Math.floor(Math.random() * 2) + 1; player.materials.iron += iron;
+                logPersonal(`Campo: Recolheu +${iron} Minério Metálico na periferia.`);
+                checkQuestProgress("iron", iron);
             } else if (type === 'gather') {
-                const foodFound = Math.floor(Math.random() * 2) + 1;
-                player.materials.food += foodFound;
-                logPersonal(`Coletando Alimentos: Reuniu +${foodFound} Ingredientes.`);
-                checkQuestProgress("gather", foodFound);
+                const food = Math.floor(Math.random() * 2) + 1; player.materials.food += food;
+                logPersonal(`Campo: Coletou +${food} Ingredientes Culinários nos bosques.`);
+                checkQuestProgress("gather", food);
             }
-            gainXp(10);
-            updateUI();
-            saveGame();
+            gainXp(12); updateUI(); saveGame();
         }
 
         function restAtInn() {
             if (player.materials.food >= 1) {
-                player.materials.food -= 1;
-                player.hp = player.maxHp;
-                logPersonal("Estalagem: Consumiu 1x Alimento. HP totalmente restaurado.");
-                updateUI();
-                saveGame();
+                player.materials.food--; player.hp = player.maxHp;
+                logPersonal("Estalagem: Alimentos processados. Código vital 100% regenerado.");
+                updateUI(); saveGame();
             } else {
-                logPersonal("Estalagem: Falha. Você precisa de 1x Ingrediente Culinário para se manter hospedado.");
+                logPersonal("Estalagem: Erro. Você precisa de no mínimo 1x Ingrediente para custear o repouso.");
             }
         }
 
-        // Sistema de Seleção Dinâmica de Inimigos por Andar
+        // Sistema de Combate Atualizado com Emboscada da Guilda Laranja (Caixão Sorridente)
         function startCombat(isBoss = false) {
             if (player.hp <= 0) return;
 
-            let eName = ""; let eHp = 0; let eAtk = 0; let rareDrop = "";
+            let eName = ""; let eHp = 0; let eAtk = 0; let drop = ""; let isPk = false;
 
-            if (isBoss) {
-                eName = bossNames[player.floor] || `Monstro Flagelo do Andar ${player.floor}`;
-                eHp = player.floor * 160 + 100; eAtk = player.floor * 13 + 12;
-                rareDrop = "Fragmento do Código do Chefe (Troféu)";
+            // 15% de chance de interceptação PK caso não seja Boss do andar
+            if (!isBoss && Math.random() < 0.15) {
+                isPk = true;
+                eName = "Kuradeel [Laughing Coffin Agent]";
+                eHp = (player.floor * 35) + 40;
+                eAtk = (player.floor * 6) + 15;
+                drop = "Capuz do Assassino Laranja (+4 ATK)";
+                document.getElementById('battle-window-frame').className = "battle-window pk-event";
+                document.getElementById('battle-header-title').innerText = "⚠️ CÓDIGO INTERCEPTADO: EMBOSCADA PK";
+            } else if (isBoss) {
+                const boss = bossDatabase[player.floor] || { name: `Soberano do Andar ${player.floor}`, laBonus: "Código do Chefe" };
+                eName = boss.name;
+                eHp = player.floor * 170 + 120;
+                eAtk = player.floor * 14 + 14;
+                drop = boss.laBonus;
+                document.getElementById('battle-window-frame').className = "battle-window";
+                document.getElementById('battle-header-title').innerText = "CONVENÇÃO DE RAID: BOSS DE ANDAR";
             } else {
-                // Seleciona a tabela dependendo do nível da torre
-                let pool = monsterDatabase.low;
-                if (player.floor >= 25) pool = monsterDatabase.high;
-                else if (player.floor >= 10) pool = monsterDatabase.mid;
-
-                let baseEnemy = pool[Math.floor(Math.random() * pool.length)];
-                eName = `${baseEnemy.name} (F-${player.floor})`;
-                eHp = baseEnemy.hp + (player.floor * 5);
-                eAtk = baseEnemy.atk + (player.floor * 2);
-                rareDrop = baseEnemy.dropItem;
+                let pool = player.floor >= 25 ? monsterDatabase.high : (player.floor >= 10 ? monsterDatabase.mid : monsterDatabase.low);
+                let base = pool[Math.floor(Math.random() * pool.length)];
+                eName = `${base.name} (F-${player.floor})`;
+                eHp = base.hp + (player.floor * 4);
+                eAtk = base.atk + (player.floor * 2);
+                drop = base.drop;
+                document.getElementById('battle-window-frame').className = "battle-window";
+                document.getElementById('battle-header-title').innerText = "INSTÂNCIA EM EXECUÇÃO";
             }
 
-            currentEnemy = { name: eName, hp: eHp, maxHp: eHp, atk: eAtk, isBoss: isBoss, rareDrop: rareDrop };
-
-            document.getElementById('battle-loot-chance').innerText = `DROP POSSÍVEL: ${rareDrop}`;
+            currentEnemy = { name: eName, hp: eHp, maxHp: eHp, atk: eAtk, isBoss: isBoss, isPk: isPk, drop: drop };
+            document.getElementById('battle-loot-chance').innerText = `RECOMPENSA: ${drop}`;
             document.getElementById('btn-battle-skill').innerText = classDefinitions[player.classId].skill;
-            document.getElementById('battle-status-text').innerText = `${currentEnemy.name} surgiu bloqueando seu caminho!`;
+            document.getElementById('battle-status-text').innerText = `${currentEnemy.name} travou a mira no seu avatar. Ação imediata requerida!`;
             
             updateBattleUI();
             document.getElementById('battle-screen').classList.remove('hidden');
@@ -351,45 +349,42 @@
         function executeCombatTurn(action) {
             if (!currentEnemy || player.hp <= 0) return;
 
-            let playerDamage = Math.floor(player.atk * (Math.random() * 0.3 + 0.85));
-            let enemyDamage = Math.max(1, currentEnemy.atk - player.def);
-            let battleText = "";
+            let pDmg = Math.floor((player.atk + (player.mastery / 5)) * (Math.random() * 0.3 + 0.85));
+            let eDmg = Math.max(1, currentEnemy.atk - player.def);
+            let txt = "";
+
+            // Aumento Gradual de Proficiência de Arma a cada ataque executado
+            player.mastery = parseFloat((player.mastery + 0.4).toFixed(1));
 
             if (action === 'skill') {
-                playerDamage = Math.floor(playerDamage * 1.8);
-                battleText += `Sword Skill [${classDefinitions[player.classId].skill}] aplicada! Causou ${playerDamage} de dano. `;
+                pDmg = Math.floor(pDmg * 1.9);
+                txt += `Você desferiu a Sword Skill [${classDefinitions[player.classId].skill}] aplicando ${pDmg} de dano crítico. `;
             } else if (action === 'defend') {
-                playerDamage = Math.floor(playerDamage * 0.3);
-                enemyDamage = Math.max(1, Math.floor(enemyDamage * 0.2));
-                battleText += `Defesa ativada. Postura de desvio total! `;
+                pDmg = Math.floor(pDmg * 0.2); eDmg = Math.max(1, Math.floor(eDmg * 0.15));
+                txt += `Parry executado com sucesso. Impacto reduzido a níveis mínimos! `;
             } else if (action === 'escape') {
                 if (player.materials.crystal >= 1) {
-                    player.materials.crystal -= 1;
-                    document.getElementById('battle-screen').classList.add('hidden');
-                    currentEnemy = null;
-                    logPersonal("CRISTAL: Descarregado. Teleporte emergencial executado para a zona segura.");
+                    player.materials.crystal--; document.getElementById('battle-screen').classList.add('hidden');
+                    currentEnemy = null; logPersonal("CRISTAL: Comando 'Teleport!' aceito. Evacuação concluída.");
                     updateUI(); saveGame(); return;
                 } else {
-                    document.getElementById('battle-status-text').innerText = "Nenhum Cristal de Teleporte disponível no inventário!";
-                    return;
+                    document.getElementById('battle-status-text').innerText = "Ação Inválida. Você não carrega Cristais de Teleporte ativos."; return;
                 }
             } else {
-                battleText += `Ataque direto desferido. Causou ${playerDamage} dano. `;
+                txt += `Ataque direto computado. Causou ${pDmg} de dano linear. `;
             }
 
-            currentEnemy.hp = Math.max(0, currentEnemy.hp - playerDamage);
-
+            currentEnemy.hp = Math.max(0, currentEnemy.hp - pDmg);
             if (currentEnemy.hp > 0) {
-                player.hp = Math.max(0, player.hp - enemyDamage);
-                battleText += `${currentEnemy.name} descarregou contra-ataque de ${enemyDamage} de dano.`;
+                player.hp = Math.max(0, player.hp - eDmg);
+                txt += `${currentEnemy.name} rebateu infringindo ${eDmg} de dano real.`;
             }
 
-            document.getElementById('battle-status-text').innerText = battleText;
+            document.getElementById('battle-status-text').innerText = txt;
             updateBattleUI(); updateUI();
 
             if (player.hp <= 0) {
-                document.getElementById('battle-screen').classList.add('hidden');
-                triggerGameOver();
+                document.getElementById('battle-screen').classList.add('hidden'); triggerGameOver();
             } else if (currentEnemy.hp <= 0) {
                 resolveVictory();
             }
@@ -397,127 +392,118 @@
 
         function resolveVictory() {
             document.getElementById('battle-screen').classList.add('hidden');
-            let xpGained = 35 + (player.floor * 8);
-            player.materials.iron += 1;
+            let xp = 40 + (player.floor * 8); player.materials.iron++;
 
-            logPersonal(`Combate: ${currentEnemy.name} estilhaçado. Adquirido +1 Minério.`);
-            checkQuestProgress("kill", 1);
+            if (currentEnemy.isPk) {
+                logPersonal(`JUSTIÇA: O Player Killer ${currentEnemy.name} foi eliminado antes de corromper sua conta.`, true);
+                xp *= 2;
+            } else {
+                logPersonal(`Combate: ${currentEnemy.name} dissolvido. Adquirido +1 Lote Metálico.`);
+            }
 
-            // Sistema de Rolagem de Drop Raro (25% de chance)
-            if (Math.random() > 0.75 && currentEnemy.rareDrop) {
-                if (!player.rares.includes(currentEnemy.rareDrop)) {
-                    player.rares.push(currentEnemy.rareDrop);
-                    logPersonal(`DROP RARO COMPILADO: Você obteve [${currentEnemy.rareDrop}]!`, false);
-                    
-                    // Aplicação direta de buffs permanentes baseados no item dropado
-                    if (currentEnemy.rareDrop.includes("ATK")) player.atk += 5;
-                    if (currentEnemy.rareDrop.includes("DEF")) player.def += 3;
-                    if (currentEnemy.rareDrop.includes("HP")) player.maxHp += 15;
+            // Sistema de Rolagem de Drops Raros / LA Bonus
+            if (currentEnemy.isBoss || (Math.random() > 0.7 && currentEnemy.drop)) {
+                if (!player.rares.includes(currentEnemy.drop)) {
+                    player.rares.push(currentEnemy.drop);
+                    logPersonal(`[RECOMPENSA EXCLUSIVA] Adquiriu: ${currentEnemy.drop}`, true);
+                    if (currentEnemy.drop.includes("ATK")) player.atk += 8;
+                    if (currentEnemy.drop.includes("DEF")) player.def += 4;
+                    if (currentEnemy.drop.includes("HP")) player.maxHp += 25;
                 }
             }
 
             if (currentEnemy.isBoss) {
-                logPersonal(`SISTEMA: Andar ${player.floor} Concluído. Portão do Andar ${player.floor + 1} Liberado.`);
-                player.floor += 1;
-                player.hp = player.maxHp;
-                xpGained *= 3;
+                player.floor++; player.hp = player.maxHp; xp *= 3;
+                logPersonal(`SISTEMA: Conquista de Andar! A Linha de Frente avançou para o Andar ${player.floor}.`);
             }
 
-            gainXp(xpGained);
-            currentEnemy = null;
+            gainXp(xp); currentEnemy = null; updateUI(); saveGame();
+        }
+
+        // Gestão das Missões Dinâmicas
+        function acceptQuest(id) {
+            if (player.activeQuest) return;
+            const q = questDatabase.find(x => x.id === id);
+            player.activeQuest = { id: q.id, title: q.title, type: q.type, progress: 0, target: q.target, xp: q.xp, crystal: q.crystal };
+            logPersonal(`Missão: Contrato [${q.title}] ativado no menu flutuante.`);
             updateUI(); saveGame();
         }
 
-        // Sistema de Aceite e Gestão do Quadro de Missões Secundárias
-        function acceptQuest(questId) {
-            if (player.activeQuest) { logPersonal("Missão: Você já possui um contrato pendente no painel neural."); return; }
-            const q = questDatabase.find(x => x.id === questId);
-            player.activeQuest = { id: q.id, title: q.title, type: q.type, progress: 0, target: q.target, rewardXp: q.rewardXp, rewardCrystal: q.rewardCrystal };
-            logPersonal(`Contrato: Missão [${q.title}] de ${q.npc} aceita.`);
-            updateUI(); saveGame();
-        }
-
-        function checkQuestProgress(type, amount) {
+        function checkQuestProgress(type, amt) {
             if (!player.activeQuest || player.activeQuest.type !== type) return;
-            player.activeQuest.progress = Math.min(player.activeQuest.target, player.activeQuest.progress + amount);
-            if (player.activeQuest.progress >= player.activeQuest.target) {
-                logPersonal(`NOTIFICAÇÃO: Diretrizes de [${player.activeQuest.title}] cumpridas. Conclua na aba do Quadro.`);
-            }
+            player.activeQuest.progress = Math.min(player.activeQuest.target, player.activeQuest.progress + amt);
+            updateUI();
         }
 
-        function claimQuestReward() {
+        function claimQuest() {
             if (!player.activeQuest || player.activeQuest.progress < player.activeQuest.target) return;
-            
-            gainXp(player.activeQuest.rewardXp);
-            player.materials.crystal += player.activeQuest.rewardCrystal;
-            logPersonal(`Contrato Concluído: Recompensas integradas (+${player.activeQuest.rewardXp} XP).`);
-            
-            player.activeQuest = null;
-            updateUI(); saveGame();
+            gainXp(player.activeQuest.xp); player.materials.crystal += player.activeQuest.crystal;
+            logPersonal(`Missão: Recompensas da tarefa sincronizadas com a carteira central.`);
+            player.activeQuest = null; updateUI(); saveGame();
         }
 
         function craftItem(type) {
-            const nextTier = getTierNames(player.floor);
+            const next = getTierNames(player.floor);
             if (type === 'weapon' && player.materials.iron >= 3) {
-                player.materials.iron -= 3; player.atk += 6 + (player.floor * 2);
-                player.equipment.weapon = `${nextTier.weapon} (T-${player.floor})`;
-                logPersonal(`Forja: Nova arma acoplada: ${player.equipment.weapon}`);
+                player.materials.iron -= 3; player.atk += 5 + (player.floor * 2);
+                player.equipment.weapon = `${next.weapon} (Andar ${player.floor})`;
+                logPersonal(`Forja: Lâmina moldada com sucesso: ${player.equipment.weapon}`);
             } else if (type === 'armor' && player.materials.iron >= 2 && player.materials.food >= 1) {
-                player.materials.iron -= 2; player.materials.food -= 1;
-                player.def += 4 + player.floor; player.maxHp += 20; player.hp = player.maxHp;
-                player.equipment.armor = `${nextTier.armor} (T-${player.floor})`;
-                logPersonal(`Forja: Chapa protetora atualizada.`);
+                player.materials.iron -= 2; player.materials.food--;
+                player.def += 3 + player.floor; player.maxHp += 20; player.hp = player.maxHp;
+                player.equipment.armor = `${next.armor} (Andar ${player.floor})`;
+                logPersonal(`Forja: Equipou uma blindagem reforçada.`);
             } else {
-                logPersonal("Forja: Matéria-prima escassa.");
+                logPersonal("Forja: Componentes moleculares insuficientes para sintetização.");
             }
             updateUI(); saveGame();
         }
 
-        function gainXp(amount) {
-            player.xp += amount;
+        function gainXp(amt) {
+            player.xp += amt;
             if (player.xp >= player.nextLevelXp) {
-                player.xp -= player.nextLevelXp; player.level += 1;
+                player.xp -= player.nextLevelXp; player.level++;
                 player.nextLevelXp = Math.floor(player.nextLevelXp * 1.6);
-                player.maxHp += 20; player.hp = player.maxHp; player.atk += 3; player.def += 2;
-                logPersonal(`[LEVEL UP] Seu ID escalou para o Nível ${player.level}.`);
+                player.maxHp += 15; player.hp = player.maxHp; player.atk += 3; player.def += 2;
+                logPersonal(`[SISTEMA] Nível do Avatar atualizado: Nivel ${player.level}. Core otimizado.`);
             }
         }
 
         function triggerGameOver() {
             document.getElementById('status-panel').classList.add('danger');
-            logPersonal("SINAL EM ZERO: Pulso terminal ativado pelo NerveGear. Fim de registro.", true);
-            localStorage.removeItem('sao_matrix_v35');
+            logPersonal("CRÍTICO: Seu HP zerou. O NerveGear ativou a descarga de micro-ondas contra o cérebro. Sessão encerrada.", true);
+            localStorage.removeItem('sao_matrix_v40');
         }
 
-        function wipeCharacter() { localStorage.removeItem('sao_matrix_v35'); window.location.reload(); }
+        function wipeCharacter() { localStorage.removeItem('sao_matrix_v40'); window.location.reload(); }
 
-        function runNetworkSimulation() {
-            const messages = [
-                "Guilda Cavaleiros do Juramento de Sangue mapeou nova ala no labirinto.",
-                "Informativo: Loja de Egil no Andar 5 está comprando couro de monstro.",
-                "Alerta: Jogadores laranjas (PK) avistados nas matas do Andar inferior.",
-                "Asuna e a Vanguarda estabeleceram nova base tática perto da sala do Boss."
+        function simulateLobby() {
+            const lines = [
+                "Guilda 'Cavaleiros do Juramento de Sangue' convocou reunião estratégica.",
+                "Egil: Compro Minérios Metálicos no Andar 50 por bom preço!",
+                "Informativo: Sala do Boss mapeada por batedores avançados.",
+                "Alerta de Vanguarda: Evitem rotas secundárias sem Cristais de Fuga logados."
             ];
-            const netLog = document.getElementById('network-log');
+            const net = document.getElementById('network-log');
             const el = document.createElement('li'); el.className = "console-line";
-            el.innerHTML = `[Lobby] ${messages[Math.floor(Math.random() * messages.length)]}`;
-            netLog.insertBefore(el, netLog.firstChild);
+            el.innerHTML = `[Lobby] ${lines[Math.floor(Math.random() * lines.length)]}`;
+            net.insertBefore(el, net.firstChild);
         }
 
         function updateUI() {
-            document.getElementById('hud-name').innerText = player.name || "Desconhecido";
+            document.getElementById('hud-name').innerText = player.name || "Offline";
             document.getElementById('hud-class').innerText = player.className || "-";
             document.getElementById('hud-level').innerText = `LV ${player.level}`;
             document.getElementById('hud-xp').innerText = `${player.xp}/${player.nextLevelXp}`;
             document.getElementById('hud-floor').innerText = `ANDAR ${player.floor}`;
-            document.getElementById('hud-hp-text').innerText = `${player.hp}/${player.maxHp}`;
+            document.getElementById('hud-hp-text').innerText = `${player.hp}/${player.maxHp} HP`;
             document.getElementById('hud-atk').innerText = player.atk;
             document.getElementById('hud-def').innerText = player.def;
+            document.getElementById('hud-mastery').innerText = `${player.mastery}%`;
 
-            const hpPercent = (player.hp / player.maxHp) * 100;
-            const fill = document.getElementById('hud-hp-fill');
-            fill.style.width = `${hpPercent}%`;
-            fill.style.backgroundColor = hpPercent < 25 ? 'var(--hp-red)' : hpPercent < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)';
+            const pct = (player.hp / player.maxHp) * 100;
+            const fill = document.getElementById('hud-hp-fill'); fill.style.width = `${pct}%`;
+            fill.style.backgroundColor = pct < 25 ? 'var(--hp-red)' : (pct < 50 ? 'var(--hp-yellow)' : 'var(--hp-green)');
 
             document.getElementById('mat-iron').innerText = player.materials.iron;
             document.getElementById('mat-food').innerText = player.materials.food;
@@ -525,49 +511,34 @@
             document.getElementById('eq-weapon').innerText = player.equipment.weapon;
             document.getElementById('eq-armor').innerText = player.equipment.armor;
 
-            const nextTier = getTierNames(player.floor);
-            document.getElementById('craft-weapon-label').innerText = `[Arma] ${nextTier.weapon}`;
-            document.getElementById('craft-armor-label').innerText = `[Armadura] ${nextTier.armor}`;
+            const next = getTierNames(player.floor);
+            document.getElementById('craft-weapon-label').innerText = `[Arma] ${next.weapon}`;
+            document.getElementById('craft-armor-label').innerText = `[Armadura] ${next.armor}`;
 
-            // Renderização do Display da Missão Ativa
-            const questPanel = document.getElementById('active-quest-details');
+            // Render do Bloco de Quests
+            const qBox = document.getElementById('quest-system-box');
             if (player.activeQuest) {
-                let isReady = player.activeQuest.progress >= player.activeQuest.target;
-                questPanel.innerHTML = `
-                    <div style="font-weight:bold; font-size:0.9rem;">${player.activeQuest.title}</div>
-                    <div style="font-size:0.8rem; color:#7f8c8d; margin:4px 0;">Progresso: [ ${player.activeQuest.progress} / ${player.activeQuest.target} ]</div>
-                    ${isReady ? '<button class="action-btn" style="width:100%; padding:5px; margin-top:5px;" onclick="claimQuestReward()">Concluir e Resgatar</button>' : '<p style="font-size:0.75rem; color:var(--sao-orange);">Diretrizes pendentes em campo...</p>'}
-                `;
+                let ready = player.activeQuest.progress >= player.activeQuest.target;
+                qBox.innerHTML = `
+                    <div class="item-row" style="flex-direction:column; align-items:flex-start;">
+                        <strong>${player.activeQuest.title}</strong>
+                        <span style="font-size:0.75rem; color:#64748b;">Avanço: [${player.activeQuest.progress}/${player.activeQuest.target}]</span>
+                        ${ready ? '<button class="action-btn" style="width:100%; margin-top:5px; padding:4px;" onclick="claimQuest()">Resgatar Prêmios</button>' : '<span style="color:var(--sao-orange); font-size:0.7rem; margin-top:3px;">Processando objetivos em campo...</span>'}
+                    </div>`;
             } else {
-                questPanel.innerHTML = `<p style="font-size:0.85rem; font-style:italic; color:#7f8c8d;">Nenhum contrato ativo no painel neural.</p>`;
+                qBox.innerHTML = "<p style='color:#94a3b8; font-style:italic;'>Quadro vazio. Acesse o menu de Forja/Inventário para ver contratos de NPCs disponíveis.</p>";
             }
 
-            // Renderização do Quadro Geral de Missões
-            const board = document.getElementById('quest-board-list');
-            board.innerHTML = "";
-            questDatabase.forEach(q => {
-                let btnState = player.activeQuest ? 'disabled' : '';
-                let block = document.createElement('div');
-                block.className = "item-row";
-                block.style.flexDirection = "column";
-                block.style.alignItems = "flex-start";
-                block.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; width:100%; font-weight:bold; font-size:0.85rem;">
-                        <span>${q.title} (${q.npc})</span>
-                        <button ${btnState} style="padding:2px 6px; font-size:0.7rem;" onclick="acceptQuest(${q.id})">Aceitar</button>
-                    </div>
-                    <span style="font-size:0.75rem; color:#7f8c8d; margin-top:3px;">${q.desc}</span>
-                `;
-                board.appendChild(block);
-            });
-
-            // Atualização de Raros Guardados
-            const rareBox = document.getElementById('rare-loot-list');
+            // Lista de Raros
+            const rBox = document.getElementById('rare-loot-list');
             if (player.rares.length > 0) {
-                rareBox.innerHTML = player.rares.map(x => `<div style="color:var(--sao-orange); font-weight:bold;">✦ ${x}</div>`).join('');
+                rBox.innerHTML = player.rares.map(x => `<div style="color:var(--sao-orange); font-weight:bold;">✦ ${x}</div>`).join('');
             } else {
-                rareBox.innerHTML = "Nenhum drop raro coletado.";
+                rBox.innerHTML = "Nenhum drop raro ou prêmio LA Bonus registrado.";
             }
+
+            // Atualização do quadro de aceite
+            const fBox = document.getElementById('quest-board-list');
         }
 
         function updateBattleUI() {
@@ -577,28 +548,26 @@
             document.getElementById('enemy-hp-fill').style.width = `${(currentEnemy.hp / currentEnemy.maxHp) * 100}%`;
         }
 
-        function logPersonal(msg, isUrgent = false) {
-            const pLog = document.getElementById('personal-log');
-            const el = document.createElement('li'); el.className = "console-line";
-            if (isUrgent) el.style.color = "var(--hp-red)";
-            el.innerHTML = `&gt; ${msg}`;
-            pLog.insertBefore(el, pLog.firstChild);
+        function logPersonal(msg, urg = false) {
+            const l = document.getElementById('personal-log'); const el = document.createElement('li');
+            el.className = "console-line"; if (urg) el.style.color = "var(--hp-red)";
+            el.innerHTML = `&gt; ${msg}`; l.insertBefore(el, l.firstChild);
         }
 
-        function saveGame() { if (player.hp > 0) localStorage.setItem('sao_matrix_v35', JSON.stringify(player)); }
+        function saveGame() { if (player.hp > 0) localStorage.setItem('sao_matrix_v40', JSON.stringify(player)); }
 
         function loadGame() {
-            const saved = localStorage.getItem('sao_matrix_v35');
+            const saved = localStorage.getItem('sao_matrix_v40');
             if (saved) {
                 player = JSON.parse(saved);
                 document.getElementById('screen-creation').classList.add('hidden');
                 document.getElementById('screen-main').classList.remove('hidden');
-                logPersonal(`Autenticação restaurada. Retornando ao Andar ${player.floor}.`);
+                logPersonal(`Kernel restaurado. Sessão ativa mantida no Andar ${player.floor}.`);
                 updateUI();
             }
         }
 
-        window.onload = function() { loadGame(); setInterval(runNetworkSimulation, 8000); };
+        window.onload = function() { loadGame(); setInterval(simulateLobby, 8000); };
     </script>
 </body>
 </html>
