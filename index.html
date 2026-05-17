@@ -1,391 +1,252 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batataria Real - O Melhor Delivery</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>LINK START // OVR System Engine</title>
     <style>
         :root {
-            --primary: #F87E23; /* Flame-Orange */
-            --secondary: #8C6F5A; /* Burgundy-Brown */
-            --dark: #4A4A4A; /* Charcoal-Gray */
-            --accent: #D6A238; /* Potato-Gold */
-            --bg: #F9F3E0; /* Cream */
-            --white: #ffffff;
-            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --bg-color: #0a0c10;
+            --panel-bg: #12161f;
+            --text-color: #c9d1d9;
+            --accent-blue: #00f0ff;
+            --accent-red: #ff3e3e;
+            --accent-green: #00ff66;
+            --border-color: #21262d;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-
-        body { background-color: var(--bg); color: var(--dark); line-height: 1.6; }
-
-        /* Header & Status */
-        header {
-            background: var(--dark);
-            color: var(--white);
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
             padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
             text-align: center;
-            border-bottom: 4px solid var(--primary);
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
-        .logo { width: 80px; margin-bottom: 10px; }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-        .open { background: #2ecc71; color: white; }
-        .closed { background: #e74c3c; color: white; }
-
-        .delivery-info {
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-top: 8px;
-        }
-
-        /* Menu Section */
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-
-        .category-title {
-            font-size: 1.2rem;
-            font-weight: 800;
-            margin: 25px 0 15px;
-            color: var(--secondary);
-            border-left: 4px solid var(--primary);
-            padding-left: 10px;
+        h1 {
+            color: var(--accent-blue);
+            font-size: 2.5rem;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
-        .product-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-        }
-
-        .product-card:active { transform: scale(0.98); }
-
-        .product-info h3 { font-size: 1rem; color: var(--dark); }
-        .product-info p { font-size: 0.85rem; color: #777; margin: 4px 0; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
-
-        .add-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        /* Cart Logic */
-        .cart-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            padding: 15px 20px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .btn-checkout {
-            background: var(--primary);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 10px;
-            text-decoration: none;
+        .subtitle {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--accent-red);
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-top: 10px;
         }
 
-        /* Modal Checkout */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            z-index: 2000;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .modal-content {
-            background: var(--white);
-            width: 100%;
-            max-width: 600px;
-            padding: 25px;
-            border-radius: 20px 20px 0 0;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .order-summary {
-            background: #f8f8f8;
+        .dev-note {
+            background: rgba(255, 62, 62, 0.1);
+            border-left: 4px solid var(--accent-red);
             padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        h2 {
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        h3 {
+            color: var(--accent-green);
+        }
+
+        .pillar-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+        .formula-box {
+            background-color: #000;
+            border: 1px dashed var(--accent-blue);
+            padding: 15px;
+            text-align: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            margin: 20px 0;
+            border-radius: 4px;
         }
 
-        .close-modal { float: right; font-size: 1.5rem; cursor: pointer; }
+        ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
 
-        @media (max-width: 480px) {
-            .container { padding: 15px; }
+        li {
+            margin-bottom: 10px;
+        }
+
+        .code-inline {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #21262d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff7b72;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(0, 240, 255, 0.1);
+            color: var(--accent-blue);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        .warning-text {
+            color: var(--accent-red);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<header>
-    <img src="🍟" alt="Logo" class="logo">
-    <h1>Batataria Real</h1>
-    <div id="status-badge" class="status-badge closed">Verificando...</div>
-    <div class="delivery-info">
-        <i class="fas fa-motorcycle"></i> Ramos, Olaria, Penha e Bonsucesso<br>
-        <i class="fas fa-clock"></i> 20:00 às 01:00
-    </div>
-</header>
-
 <div class="container">
-    <div class="category-title">A Braba das Batatas (Tradicionais)</div>
-    <div id="menu-tradicionais"></div>
+    <header>
+        <h1>SAO // OVR Engine</h1>
+        <div class="subtitle">Offline Virtual Reality v1.0.0 // Hardcore TTRPG Ruleset</div>
+    </header>
 
-    <div class="category-title">Batatas Recheadas (As Reais)</div>
-    <div id="menu-recheadas"></div>
-</div>
-
-<div id="cart-bar" class="cart-bar">
-    <div>
-        <span id="cart-count">0</span> itens no carrinho<br>
-        <strong>Total: <span id="cart-total">R$ 0,00</span></strong>
+    <div class="dev-note">
+        <strong>[LOG DO DESENVOLVEDOR - NOTA DE REMASTERIZAÇÃO]:</strong> Como programador e mestre old-school rodando sistemas há mais de três décadas, refatorei as mecânicas táticas de <em>Cyberpunk RED</em> e <em>Fragged Empire</em> para rodar um ambiente de Fantasia Medieval Simulada em "Bare Metal" (totalmente offline). O "Netrunning" e os implantes cibernéticos foram traduzidos diretamente como manipulação de código-fonte da própria matriz virtual e maestria de armas. <span class="warning-text">Aviso: Instabilidade no HP resulta em wipe físico do usuário. Se o HP chegar a zero, a campanha termina para aquele hardware biológico.</span>
     </div>
-    <a href="#" class="btn-checkout" onclick="openCheckout()">
-        Finalizar Pedido <i class="fas fa-chevron-right"></i>
-    </a>
-</div>
 
-<div id="modal-checkout" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeCheckout()">&times;</span>
-        <h2>Finalizar Pedido</h2>
-        <p style="font-size: 0.8rem; color: #666; margin-bottom: 20px;">Preencha os dados para envio via WhatsApp</p>
+    <div class="pillar-grid">
         
-        <div class="order-summary" id="order-summary">
+        <!-- PILAR 1 -->
+        <section class="card">
+            <h2>1. Elementos Fundamentais (Hardware de Mesa)</h2>
+            <p>Para emular a interface neural sem usar um único bit de energia elétrica, o motor offline depende de quatro componentes físicos estruturais:</p>
+            <ul>
+                <li><strong>Ficha de Personagem (Aba de Status):</strong> Papel impresso que funciona como o seu HUD analógico. Armazena os atributos puros convertidos do sistema (Força, Agilidade, Alocação de Código), suas perícias calibradas (Furtividade, Medicina Estável) e os slots de equipamentos equipados na memória volátil do inventário.</li>
+                <li><strong>Dados Físicos (Poliedros de Processamento):</strong> Os geradores de aleatoriedade do sistema. Embora usemos a base de dados de 4, 6 e 10 lados para danos e tabelas críticas herdadas de <em>Fragged Empire</em>, o núcleo de checagem principal roda na CPU do <span class="code-inline">D20</span> (dado de 20 lados).</li>
+                <li><strong>Livro de Regras (Manual do Kernel):</strong> O repositório físico contendo as tabelas indexadas de custos de itens, modificadores de ambiente da simulação, descrição de códigos de manipulação (magias) e a matriz de danos de combate tático.</li>
+                <li><strong>Escudo do Mestre (Console do Administrador):</strong> Divisória física que oculta os spawns de monstros e as rotinas secretas do Narrador (System Admin), exibindo tabelas de consulta rápida de condições no verso.</li>
+            </ul>
+        </section>
+
+        <!-- PILAR 2 -->
+        <section class="card">
+            <h2>2. Ciclo de Jogo (O Fluxo de Inputs)</h2>
+            <p>A engine do jogo processa as ações através de uma estrutura síncrona de três passos contínuos em formato de conversa guiada:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fase</th>
+                        <th>Agente</th>
+                        <th>Execução na Mesa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Renderização</strong></td>
+                        <td>Mestre (SysAdmin)</td>
+                        <td>Descreve o ambiente e o estado atual da simulação: <em>"Vocês sobem os degraus do 74º andar. À frente, uma gigantesca porta de ferro fundido bloqueia o acesso à sala do Boss. Runas estáticas oscilam nas bordas da fechadura."</em></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Input de Comando</strong></td>
+                        <td>Jogadores (Avatares)</td>
+                        <td>Declaram sua intenção tática exata: <em>"Vou usar minhas ferramentas de ladinagem para injetar um exploit físico e arrombar a fechadura."</em></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Resolução de Código</strong></td>
+                        <td>Mestre & Dados</td>
+                        <td>O Admin dita a regra de restrição: <em>"Faça um teste de quebra de matriz. Role um dado de 20 lados e some seu modificador de Destreza (Código)."</em></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- PILAR 3 -->
+        <section class="card">
+            <h2>3. Resolução de Ações (A Matemática do Kernel)</h2>
+            <p>O sucesso de qualquer input arriscado ou modificação do ambiente simulado segue o conceito rígido de <strong>Dificuldade Alvo (Classe de Dificuldade - CD)</strong>. A fórmula de processamento matemático básica é:</p>
+            
+            <div class="formula-box">
+                Resultado do Dado + Modificador do Personagem >= Classe de Dificuldade (CD)
             </div>
 
-        <div class="form-group">
-            <label>Seu Nome</label>
-            <input type="text" id="nome" placeholder="Ex: João Silva">
-        </div>
-        
-        <div class="form-group">
-            <label>Endereço de Entrega</label>
-            <input type="text" id="endereco" placeholder="Rua, número e bairro">
-        </div>
+            <h3>Exemplo Prático de Execução:</h3>
+            <p>O jogador tenta o exploit na fechadura do 74º andar. Ele rola o <span class="code-inline">D20</span> e obtém um <strong>14</strong> na face do dado. Sua ficha possui um modificador de <span class="code-inline">+4</span> em Ladinagem (derivado de sua Maestria de Código). O output total é <strong>18</strong>.</p>
+            <ul>
+                <li>Se a CD da fechadura definida pelo Mestre fosse <strong>15</strong>: O processamento retorna <span class="code-inline">SUCESSO</span>. Os pistões da porta correm para as laterais e o acesso é liberado.</li>
+                <li>Se o output fosse menor que 15: O processamento retorna <span class="code-inline">FALHA</span>. A fechadura entra em estado de Lockout (trava permanentemente) ou dispara uma rotina de alarme, spawnando sentinelas na área.</li>
+            </ul>
+        </section>
 
-        <div class="form-group">
-            <label>Bairro</label>
-            <select id="bairro">
-                <option value="Ramos">Ramos</option>
-                <option value="Olaria">Olaria</option>
-                <option value="Penha">Penha</option>
-                <option value="Bonsucesso">Bonsucesso</option>
-            </select>
-        </div>
+        <!-- PILAR 4 -->
+        <section class="card">
+            <h2>4. Gestão de Combate e Recursos (Mecânicas de Letalidade)</h2>
+            <p>O combate tático refinado exige precisão matemática absoluta na mesa. Quando a simulação entra em modo de iniciativa, o gerenciamento de recursos se torna crítico:</p>
+            
+            <h3>Fila de Execução (Iniciativa)</h3>
+            <p>No início de qualquer confronto, todos os jogadores e ameaças rolam um dado adicionando seus modificadores de reflexo. A ordem física dos papéis na mesa determina estritamente quem executa seus frames de ação primeiro.</p>
 
-        <div class="form-group">
-            <label>Forma de Pagamento</label>
-            <select id="pagamento">
-                <option value="Pix">Pix (Melhor Opção)</option>
-                <option value="Cartão Débito">Cartão Débito</option>
-                <option value="Cartão Crédito">Cartão Crédito</option>
-                <option value="Dinheiro">Dinheiro</option>
-            </select>
-        </div>
+            <h3>Frames de Ação (Turnos)</h3>
+            <p>Na sua vez, o avatar possui largura de banda para realizar duas ações básicas ou uma ação completa:</p>
+            <ul>
+                <li><strong>Movimentação Local:</strong> Deslocar-se pelo mapa de papel quadriculado ou Grid tático baseado na sua velocidade base.</li>
+                <li><strong>Ação Computacional/Física:</strong> Desferir um ataque de arma, aplicar um item de restauração médica ou injetar um código de suporte (magia).</li>
+            </ul>
 
-        <button class="btn-checkout" style="width: 100%; justify-content: center; border: none; cursor: pointer;" onclick="sendWhatsApp()">
-            <i class="fab fa-whatsapp"></i> ENVIAR PEDIDO AGORA
-        </button>
-    </div>
-</div>
-
-<script>
-    const menu = {
-        tradicionais: [
-            { id: 1, nome: "Batata P (Pequena)", desc: "200g - Crocante com tempero da casa", preco: 14.90 },
-            { id: 2, nome: "Batata M (Média)", desc: "400g - Ideal para um lanche rápido", preco: 22.90 },
-            { id: 3, nome: "Batata G (Grande)", desc: "700g - Para dividir em dois", preco: 34.90 },
-            { id: 4, nome: "Batata Mega (Família)", desc: "1.1kg - O melhor custo benefício!", preco: 49.90 }
-        ],
-        recheadas: [
-            { id: 5, nome: "Cheddar e Bacon Real", desc: "Batata G com muito cheddar e bacon crocante", preco: 42.90 },
-            { id: 6, nome: "Frango com Catupiry", desc: "Frango desfiado temperado e Catupiry original", preco: 39.90 }
-        ]
-    };
-
-    let cart = [];
-
-    // Lógica de Horário
-    function checkStatus() {
-        const now = new Date();
-        const hour = now.getHours();
-        const badge = document.getElementById('status-badge');
-        
-        // Atendimento: 20:00 (20) até 01:00 (0)
-        const isOpen = (hour >= 20 || hour < 1);
-        
-        if(isOpen) {
-            badge.innerText = "● LOJA ABERTA";
-            badge.className = "status-badge open";
-        } else {
-            badge.innerText = "● LOJA FECHADA (Abre às 20h)";
-            badge.className = "status-badge closed";
-        }
-    }
-
-    function renderMenu() {
-        const tDiv = document.getElementById('menu-tradicionais');
-        menu.tradicionais.forEach(item => {
-            tDiv.innerHTML += `
-                <div class="product-card">
-                    <div class="product-info">
-                        <h3>${item.nome}</h3>
-                        <p>${item.desc}</p>
-                        <span class="price">R$ ${item.preco.toFixed(2).replace('.',',')}</span>
-                    </div>
-                    <button class="add-btn" onclick="addToCart(${item.id})">+</button>
-                </div>
-            `;
-        });
-
-        const rDiv = document.getElementById('menu-recheadas');
-        menu.recheadas.forEach(item => {
-            rDiv.innerHTML += `
-                <div class="product-card">
-                    <div class="product-info">
-                        <h3>${item.nome}</h3>
-                        <p>${item.desc}</p>
-                        <span class="price">R$ ${item.preco.toFixed(2).replace('.',',')}</span>
-                    </div>
-                    <button class="add-btn" onclick="addToCart(${item.id})">+</button>
-                </div>
-            `;
-        });
-    }
-
-    function addToCart(id) {
-        const item = [...menu.tradicionais, ...menu.recheadas].find(i => i.id === id);
-        cart.push(item);
-        updateCartBar();
-        
-        // Haptic Feedback simulado
-        if(window.navigator.vibrate) window.navigator.vibrate(50);
-    }
-
-    function updateCartBar() {
-        const bar = document.getElementById('cart-bar');
-        const count = document.getElementById('cart-count');
-        const total = document.getElementById('cart-total');
-        
-        if(cart.length > 0) {
-            bar.style.display = 'flex';
-            count.innerText = cart.length;
-            const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
-            total.innerText = `R$ ${totalSum.toFixed(2).replace('.',',')}`;
-        }
-    }
-
-    function openCheckout() {
-        document.getElementById('modal-checkout').style.display = 'flex';
-        const summary = document.getElementById('order-summary');
-        summary.innerHTML = cart.map(i => `
-            <div class="summary-item">
-                <span>1x ${i.nome}</span>
-                <span>R$ ${i.preco.toFixed(2)}</span>
+            <h3>Consumíveis Físicos e Alocação de Memória</h3>
+            <p>Os pontos de vida (HP), pontos de energia de código (Mana) e cartuchos/flechas são controlados estritamente <strong>a lápis</strong> na ficha física. Não há salvamento automático em nuvem. O dano sofrido é subtraído rasgando o grafite do papel.</p>
+            
+            <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--accent-red); padding: 15px; margin-top: 20px; border-radius: 4px;">
+                <span class="warning-text">DIRETRIZ DE INTEGRALIDADE DO HARDWARE (PERMADEATH):</span><br>
+                Seguindo as regras de letalidade estrita de Cyberpunk RED, se os pontos de vida (HP) de um personagem forem reduzidos a 0 (zero) na ficha física, o dispositivo gerador de sobrecarga fictício na mesa simula a queima do lobo frontal. O personagem é deletado permanentemente do banco de dados da campanha e o jogador deve se retirar da mesa de jogo.
             </div>
-        `).join('');
-        
-        const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
-        summary.innerHTML += `<hr style="margin:10px 0"><div class="summary-item"><strong>Total</strong><strong>R$ ${totalSum.toFixed(2)}</strong></div>`;
-    }
+        </section>
 
-    function closeCheckout() {
-        document.getElementById('modal-checkout').style.display = 'none';
-    }
+    </div>
 
-    function sendWhatsApp() {
-        const nome = document.getElementById('nome').value;
-        const endereco = document.getElementById('endereco').value;
-        const bairro = document.getElementById('bairro').value;
-        const pagamento = document.getElementById('pagamento').value;
-
-        if(!nome || !endereco) {
-            alert("Por favor, preencha nome e endereço!");
-            return;
-        }
-
-        const totalSum = cart.reduce((acc, curr) => acc + curr.preco, 0);
-        let msg = `*NOVO PEDIDO - BATATARIA REAL*%0A%0A`;
-        msg += `*Cliente:* ${nome}%0A`;
-        msg += `*Endereço:* ${endereco} - ${bairro}%0A`;
-        msg += `*Pagamento:* ${pagamento}%0A%0A`;
-        msg += `*ITENS:*%0A`;
-        
-        cart.forEach(i => {
-            msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2)})%0A`;
-        });
-
-        msg += `%0A*TOTAL: R$ ${totalSum.toFixed(2)}*`;
-
-        const fone = "5521976878741";
-        window.open(`https://api.whatsapp.com/send?phone=${fone}&text=${msg}`);
-    }
-
-    window.onload = () => {
-        checkStatus();
-        renderMenu();
-        setInterval(checkStatus, 60000); // Atualiza status a cada minuto
-    };
-</script>
+    <footer style="margin-top: 60px; text-align: center; font-family: monospace; color: #8b949e; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        // EOF - SYSTEM OFFLINE // INJECTING CODE REPLICATOR COMPLETE
+    </footer>
+</div>
 
 </body>
 </html>
-"""
