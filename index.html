@@ -3,416 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAO: Link Start // MMORPG Prototype</title>
+    <title>SAO: Aincrad Chronicles // Core Engine</title>
     <style>
         :root {
             --sao-orange: #ff7f00;
-            --sao-dark: #11151c;
-            --sao-panel: #1e2530;
-            --sao-ui-blue: #00d2ff;
-            --text-color: #ffffff;
+            --sao-dark: #0b0d13;
+            --sao-panel: #161a24;
+            --sao-teal: #00ffcc;
+            --text-color: #f0f4f8;
+            --border: #2c3545;
             --hp-green: #2ecc71;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', monospace; }
+        body { background-color: var(--sao-dark); color: var(--text-color); padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        
+        .hidden { display: none !important; }
+        
+        header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--sao-orange); padding-bottom: 10px; margin-bottom: 15px; }
+        header h1 { font-size: 1.4rem; color: var(--sao-orange); letter-spacing: 1px; }
 
-        body {
-            background-color: var(--sao-dark);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-        }
+        .panel { background: var(--sao-panel); border: 1px solid var(--border); border-radius: 4px; padding: 15px; position: relative; margin-bottom: 15px; }
+        .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--sao-orange); }
+        h2 { font-size: 1rem; color: var(--sao-teal); text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
 
-        header {
-            width: 100%;
-            max-width: 1000px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--sao-orange);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+        /* Tela de Criação */
+        .creation-container { width: 100%; max-width: 500px; margin-top: 40px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #a0aec0; }
+        .form-group input, .form-group select { width: 100%; background: #000; border: 1px solid var(--border); padding: 10px; color: white; border-radius: 4px; }
+        
+        /* Dashboard Principal */
+        .game-grid { width: 100%; max-width: 1000px; display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 768px) { .game-grid { grid-template-columns: 1.8fr 1.2fr; } }
 
-        header h1 {
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            color: var(--sao-orange);
-        }
+        /* Combate e HP */
+        .hp-bar { width: 100%; height: 12px; background: #000; border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid var(--border); }
+        .hp-fill { height: 100%; width: 100%; background: var(--hp-green); transition: width 0.2s; }
+        
+        /* Console de Log */
+        .console { background: #000; border: 1px solid var(--border); height: 180px; overflow-y: auto; padding: 10px; font-size: 0.85rem; color: #33ff33; border-radius: 4px; margin-top: 10px; }
+        .console-line { margin-bottom: 6px; border-bottom: 1px dashed #112211; padding-bottom: 2px; }
 
-        .server-status {
-            font-size: 0.85rem;
-            color: var(--sao-ui-blue);
-            background: rgba(0, 210, 255, 0.1);
-            padding: 5px 10px;
-            border-radius: 3px;
-            border: 1px solid var(--sao-ui-blue);
-        }
+        /* Listas e Flex */
+        .btn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        button { background: var(--sao-orange); color: white; border: none; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-size: 0.8rem; }
+        button:hover { background: #d46900; }
+        button:disabled { background: #2d3748; color: #718096; cursor: not-allowed; }
 
-        .main-grid {
-            width: 100%;
-            max-width: 1000px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .main-grid {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--sao-panel);
-            border: 1px solid #2c3545;
-            border-radius: 6px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--sao-orange);
-            border-radius: 6px 0 0 6px;
-        }
-
-        h2 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--sao-orange);
-        }
-
-        /* Status do Jogador */
-        .player-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .avatar-frame {
-            width: 60px;
-            height: 60px;
-            background: #34495e;
-            border: 2px solid var(--sao-ui-blue);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .hp-bar-container {
-            flex-grow: 1;
-        }
-
-        .bar-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-        }
-
-        .hp-bar {
-            width: 100%;
-            height: 12px;
-            background: #111;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .hp-fill {
-            height: 100%;
-            width: 100%;
-            background: var(--hp-green);
-            transition: width 0.3s ease;
-        }
-
-        /* Sistema de Chat */
-        .chat-box {
-            height: 250px;
-            background: #0b0d13;
-            border: 1px solid #2c3545;
-            border-radius: 4px;
-            padding: 10px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-
-        .chat-msg {
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .msg-system { color: var(--sao-ui-blue); }
-        .msg-player { color: var(--sao-orange); font-weight: bold; }
-        .msg-alert { color: #ff3366; font-weight: bold; }
-
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input-area input {
-            flex-grow: 1;
-            background: #0b0d13;
-            border: 1px solid #2c3545;
-            padding: 10px;
-            color: #fff;
-            border-radius: 4px;
-        }
-
-        .chat-input-area input:focus {
-            outline: none;
-            border-color: var(--sao-orange);
-        }
-
-        button {
-            background: var(--sao-orange);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            text-transform: uppercase;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: #e06f00;
-        }
-
-        /* Tabela da Party (Equipe) */
-        .party-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .party-table th, .party-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #2c3545;
-        }
-
-        .party-table th {
-            color: var(--sao-orange);
-        }
-
-        .status-online { color: var(--hp-green); }
+        .item-row { display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px; margin-bottom: 5px; border-radius: 3px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>SAO // NET_MATRIX</h1>
-        <div class="server-status" id="connection-status">CONECTADO AO ANDAR 74</div>
-    </header>
+    <!-- TELA 1: CRIAÇÃO DE PERSONAGEM (START FROM ZERO) -->
+    <div class="panel creation-container" id="screen-creation">
+        <h2>[LINK START] REGISTRO DE AVATAR</h2>
+        <div class="form-group">
+            <label>Nome do Personagem (ID no Servidor)</label>
+            <input type="text" id="input-name" placeholder="Ex: Kirito, Asuna, Klein...">
+        </div>
+        <div class="form-group">
+            <label>Estilo de Combate / Árvore de Armas</label>
+            <select id="input-class">
+                <option value="espada_1h">Espada de Uma Mão (Equilibrado + Escudo)</option>
+                <option value="florete">Florete (Alta Velocidade + Dano Perfurante)</option>
+                <option value="adaga">Adaga (Críticos Rápidos + Reconhecimento)</option>
+                <option value="espada_2h">Espada de Duas Mãos (Pesado + Dano em Área)</option>
+                <option value="martelo">Martelo de Guerra (Contundente + Quebra de Armadura)</option>
+                <option value="lanca">Lança (Estocada de Longo Alcance)</option>
+                <option value="cimitarra">Cimitarra Curva (Cortes Amplos + Mobilidade)</option>
+            </select>
+        </div>
+        <button style="width: 100%; padding: 12px;" onclick="createNewCharacter()">Inicializar na Instância</button>
+    </div>
 
-    <div class="main-grid">
-        <!-- Coluna Esquerda: Tela de Ação e Chat -->
-        <div class="left-column" style="display: flex; flex-direction: column; gap: 20px;">
-            
-            <!-- Painel do Jogador Principal -->
+    <!-- TELA 2: HUD DO MMORPG PRINCIPAL -->
+    <div class="game-grid hidden" id="screen-main">
+        
+        <!-- COLUNA DA ESQUERDA: NARRATIVA, PROGRESSÃO E COMBATE -->
+        <div class="main-column">
+            <header>
+                <h1>SAO // CORE_MATRIX</h1>
+                <div id="hud-floor" style="color: var(--sao-orange); font-weight: bold;">ANDAR 1</div>
+            </header>
+
+            <!-- Status do Avatar -->
             <div class="panel">
-                <h2>Seu Avatar</h2>
-                <div class="player-card">
-                    <div class="avatar-frame">LV 78</div>
-                    <div class="hp-bar-container">
-                        <div class="bar-label">
-                            <span>Kirito</span>
-                            <span id="player-hp-text">14.500 / 14.500 HP</span>
-                        </div>
-                        <div class="hp-bar">
-                            <div class="hp-fill" id="player-hp-fill"></div>
-                        </div>
+                <h2>
+                    <span id="hud-name">Jogador</span>
+                    <span id="hud-level" style="color:var(--sao-orange)">LV 1</span>
+                </h2>
+                <div style="font-size: 0.85rem; color:#a0aec0; margin-bottom: 5px;">
+                    Classe Atual: <span id="hud-class" style="color: #fff;">-</span> | 
+                    XP: <span id="hud-xp">0/100</span>
+                </div>
+                <div>
+                    <div class="hp-bar">
+                        <div class="hp-fill" id="hud-hp-fill"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-top:3px;">
+                        <span>SINAL VITAL (HP)</span>
+                        <span id="hud-hp-text">100/100</span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="triggerRaidAction()">Atacar Boss da Raid</button>
-                    <button style="background: #34495e;" onclick="useHealPotion()">Usar Poção</button>
+                
+                <div class="btn-grid">
+                    <button onclick="farmMaterials()">Farmar Áreas de Coleta</button>
+                    <button onclick="enterDungeon()">Entrar na Dungeon</button>
                 </div>
+                <button onclick="challengeFloorBoss()" style="width:100%; margin-top:10px; background: #e53e3e;">Desafiar Chefe do Andar</button>
             </div>
 
-            <!-- Painel de Comunicação Multi-Lobby -->
+            <!-- Terminal Compilador -->
             <div class="panel">
-                <h2>Chat Global & Log do Servidor</h2>
-                <div class="chat-box" id="chat-box">
-                    <div class="chat-msg msg-system">[Sistema] Bem-vindo ao Sword Art Online. Sobreviva se puder.</div>
-                    <div class="chat-msg"><span class="msg-player">Asuna:</span> Alguém para farmar materiais no labirinto?</div>
-                    <div class="chat-msg"><span class="msg-player">Klein:</span> Cuidado, tem relatos de Player Killers (PK) no andar inferior!</div>
-                </div>
-                <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Digite sua mensagem na rede..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
-                    <button onclick="sendChatMessage()">Enviar</button>
-                </div>
+                <h2>Log de Eventos Síncronos</h2>
+                <div class="console" id="game-console"></div>
             </div>
         </div>
 
-        <!-- Coluna Direita: Party e Rankings -->
-        <div class="right-column" style="display: flex; flex-direction: column; gap: 20px;">
-            
-            <!-- Painel da Equipe Síncrona -->
+        <!-- COLUNA DA DIREITA: INVENTÁRIO, FARM E MATRIZ DE CRAFT -->
+        <div class="side-column">
+            <!-- Inventário de Recursos -->
             <div class="panel">
-                <h2>Membros da Party (Online)</h2>
-                <table class="party-table">
-                    <thead>
-                        <tr>
-                            <th>Jogador</th>
-                            <th>Classe</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Asuna</strong></td>
-                            <td>Esgrimista</td>
-                            <td class="status-online">100% HP</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Klein</strong></td>
-                            <td>Samurai</td>
-                            <td class="status-online">85% HP</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Agil</strong></td>
-                            <td>Tanque</td>
-                            <td style="color: #f1c40f;">50% HP</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h2>Bolsa de Materiais</h2>
+                <div id="inventory-materials">
+                    <div class="item-row"><span>Minério de Ferro Comum</span><strong id="mat-iron">0</strong></div>
+                    <div class="item-row"><span>Fragmento de Cristal Alquímico</span><strong id="mat-crystal">0</strong></div>
+                    <div class="item-row"><span>Couro de Monstro do Labirinto</span><strong id="mat-leather">0</strong></div>
+                </div>
             </div>
 
-            <!-- Informações do Universo -->
-            <div class="panel" style="background: rgba(255, 127, 0, 0.05);">
-                <h2>Alerta de Consequência</h2>
-                <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
-                    A engine está configurada para morte permanente. Se o medidor de HP do painel atingir zero, os dados de salvamento do servidor local serão permanentemente deletados do cache do navegador.
-                </p>
+            <!-- Matriz de Crafting de Ferreiro -->
+            <div class="panel">
+                <h2>Forja do Andar (Crafting)</h2>
+                <p style="font-size:0.75rem; color:#a0aec0; margin-bottom:10px;">Forje armas e peitorais com base no seu nível e insumos recolhidos:</p>
+                
+                <div class="item-row" style="flex-direction: column; gap: 5px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <strong>[Arma] Espada Recodificada</strong>
+                        <button onclick="craftItem('weapon')" style="padding:4px 8px; font-size:0.7rem;">Forjar</button>
+                    </div>
+                    <span style="font-size:0.7rem; color:var(--sao-teal);">Custo: 3 Ferros, 1 Cristal</span>
+                </div>
+
+                <div class="item-row" style="flex-direction: column; gap: 5px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <strong>[Armadura] Manto de Dados</strong>
+                        <button onclick="craftItem('armor')" style="padding:4px 8px; font-size:0.7rem;">Forjar</button>
+                    </div>
+                    <span style="font-size:0.7rem; color:var(--sao-teal);">Custo: 4 Couros, 1 Cristal</span>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 0.8rem;">
+                    <div>Equipado: <span id="eq-weapon" style="color:var(--sao-orange);">Arma Inicial</span></div>
+                    <div>Proteção: <span id="eq-armor" style="color:var(--sao-orange);">Roupas Comuns</span></div>
+                </div>
             </div>
+            
+            <button onclick="resetServerData()" style="width:100%; background:#4a5568; font-size:0.7rem;">[Deletar Personagem / Wipe]</button>
         </div>
     </div>
 
     <script>
-        // Elementos de Controle
-        let currentHP = 14500;
-        const maxHP = 14500;
+        // Máquina de Estado do Universo do Jogo
+        let player = {
+            name: "",
+            classId: "",
+            className: "",
+            level: 1,
+            xp: 0,
+            nextLevelXp: 100,
+            hp: 100,
+            maxHp: 100,
+            atk: 10,
+            def: 5,
+            floor: 1,
+            materials: { iron: 0, crystal: 0, leather: 0 },
+            equipment: { weapon: "Arma Inicial (Bronze)", armor: "Trapo Inicial" }
+        };
 
-        // Enviar Mensagem no Chat Simulado
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (message === "") return;
+        const classDefinitions = {
+            espada_1h: { name: "Espada de Uma Mão", hp: 120, atk: 12, def: 10 },
+            florete:   { name: "Florete Veloz", hp: 95, atk: 16, def: 4 },
+            adaga:     { name: "Adaga Sombria", hp: 90, atk: 14, def: 5 },
+            espada_2h: { name: "Espada de Duas Mãos", hp: 140, atk: 22, def: 2 },
+            martelo:   { name: "Martelo de Guerra", hp: 130, atk: 15, def: 8 },
+            lanca:     { name: "Lança Perfurante", hp: 110, atk: 14, def: 7 },
+            cimitarra: { name: "Cimitarra Curva", hp: 105, atk: 15, def: 6 }
+        };
 
-            const chatBox = document.getElementById('chat-box');
+        // Inicialização do Personagem do Zero
+        function createNewCharacter() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            if(!nameInput) { alert("Insira uma ID de Avatar válida para estabelecer o link."); return; }
             
-            // Mensagem do Jogador
-            const playerMsg = document.createElement('div');
-            playerMsg.className = 'chat-msg';
-            playerMsg.innerHTML = `<span class="msg-player">Você:</span> ${message}`;
-            chatBox.appendChild(playerMsg);
+            const selectedClass = document.getElementById('input-class').value;
+            const cDef = classDefinitions[selectedClass];
 
-            input.value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
+            player.name = nameInput;
+            player.classId = selectedClass;
+            player.className = cDef.name;
+            player.maxHp = cDef.hp;
+            player.hp = cDef.hp;
+            player.atk = cDef.atk;
+            player.def = cDef.def;
 
-            // Simulação de resposta de IA/Rede após 1 segundo
-            setTimeout(() => {
-                simulateNetworkTraffic();
-            }, 1200);
+            document.getElementById('screen-creation').classList.add('hidden');
+            document.getElementById('screen-main').classList.remove('hidden');
+            
+            log("Link Start estabelecido com sucesso. Inicializado no Andar 1.");
+            updateUI();
+            saveGame();
         }
 
-        // Simulador de eventos de rede de outros jogadores
-        function simulateNetworkTraffic() {
-            const responses = [
-                "<span class='msg-player'>Asuna:</span> Entendido! Movendo para a retaguarda.",
-                "<span class='msg-system'>[Notificação]</span> O jogador <em>Agil</em> usou um Cristal de Cura na equipe.",
-                "<span class='msg-player'>Klein:</span> O Boss tá trocando de padrão! Cuidado com o contra-ataque!"
-            ];
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        // Loop de Coleta (Farm) de Materiais de Acordo com o Andar Atual
+        function farmMaterials() {
+            if(player.hp <= 0) return;
             
-            const chatBox = document.getElementById('chat-box');
-            const netMsg = document.createElement('div');
-            netMsg.className = 'chat-msg';
-            netMsg.innerHTML = randomResponse;
-            chatBox.appendChild(netMsg);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            // Randomizador de Drop rate
+            const ironFound = Math.floor(Math.random() * 2) + 1;
+            const leatherFound = Math.floor(Math.random() * 2);
+            const crystalFound = Math.random() > 0.7 ? 1 : 0;
+
+            player.materials.iron += ironFound;
+            player.materials.leather += leatherFound;
+            player.materials.crystal += crystalFound;
+
+            // Jogador ganha pouca XP farmando materiais de forma segura
+            gainXp(15);
+            log(`[Farm] Você explorou as cercanias do Andar ${player.floor}. Encontrou: +${ironFound} Ferro, +${leatherFound} Couro, +${crystalFound} Cristal.`);
+            updateUI();
+            saveGame();
         }
 
-        // Ação de Combate contra Boss
-        function triggerRaidAction() {
-            const chatBox = document.getElementById('chat-box');
+        // Sistema de Masmorras (Dungeons) - Risco de Perda de Vida Real
+        function enterDungeon() {
+            if(player.hp <= 0) return;
+
+            log(`&gt; Entrando nas ruínas do Labirinto do Andar ${player.floor}...`);
             
-            // Jogador Ataca
-            const attackMsg = document.createElement('div');
-            attackMsg.className = 'chat-msg msg-system';
-            attackMsg.innerHTML = `&gt; Você executou a Skill de Espada [Vorpal Strike]. Dano computado no Boss.`;
-            chatBox.appendChild(attackMsg);
+            // Simulação matemática de combate baseado em Atributos
+            const enemyAtk = (player.floor * 5) + 5;
+            const damageTaken = Math.max(2, enemyAtk - player.def);
+            player.hp = Math.max(0, player.hp - damageTaken);
 
-            // Boss Contra-Ataca proporcionalmente
-            const damageTaken = Math.floor(Math.random() * 3000) + 1000;
-            currentHP = Math.max(0, currentHP - damageTaken);
-            
-            updateHPUI();
-
-            const bossMsg = document.createElement('div');
-            bossMsg.className = 'chat-msg msg-alert';
-            bossMsg.innerHTML = `[ALERTA] O Boss de Raide contra-atacou! Você recebeu ${damageTaken} de dano direto.`;
-            chatBox.appendChild(bossMsg);
-
-            if (currentHP === 0) {
-                const deathMsg = document.createElement('div');
-                deathMsg.className = 'chat-msg msg-alert';
-                deathMsg.innerHTML = `[GAME OVER] Seu sinal vital foi encerrado. Limpando dados do avatar...`;
-                chatBox.appendChild(deathMsg);
-                document.getElementById('connection-status').innerText = "CONEXÃO CAÍDA (SINAL APAGADO)";
-                document.getElementById('connection-status').style.borderColor = "#ff3366";
-                document.getElementById('connection-status').style.color = "#ff3366";
+            if(player.hp <= 0) {
+                triggerGameOver();
+                return;
             }
 
-            chatBox.scrollTop = chatBox.scrollHeight;
+            // Recompensa alta por sobreviver à Dungeon
+            const xpGained = 40 + (player.floor * 10);
+            player.materials.iron += 2;
+            player.materials.crystal += 1;
+            
+            log(`[Dungeon] Combate vencido! Monstros eliminados. Você sofreu ${damageTaken} de dano direto. Ganhou +${xpGained} XP.`);
+            gainXp(xpGained);
+            updateUI();
+            saveGame();
         }
 
-        function useHealPotion() {
-            if (currentHP === 0) return;
-            currentHP = Math.min(maxHP, currentHP + 4000);
-            updateHPUI();
+        // Mecânica de Chefe de Andar (Desbloqueia Próximo Nível da Torre)
+        function challengeFloorBoss() {
+            if(player.hp <= 0) return;
+
+            log(`[ALERTA] Entrando na Sala do Chefe do Andar ${player.floor}!`);
             
-            const chatBox = document.getElementById('chat-box');
-            const healMsg = document.createElement('div');
-            healMsg.className = 'chat-msg msg-system';
-            healMsg.innerHTML = `&gt; Você consumiu [Poção de Cura de Alto Nível]. Recobrou 4.000 HP.`;
-            chatBox.appendChild(healMsg);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const bossHp = player.floor * 150;
+            const bossAtk = player.floor * 12;
+
+            // Confronto direto de atributos no compilador
+            const roundsToWin = Math.ceil(bossHp / player.atk);
+            const totalBossDamage = Math.max(10, (bossAtk - player.def) * roundsToWin);
+
+            player.hp = Math.max(0, player.hp - totalBossDamage);
+
+            if(player.hp <= 0) {
+                triggerGameOver();
+                return;
+            }
+
+            // Vitória: Sobe o andar da torre global do MMORPG
+            player.floor += 1;
+            log(`[SISTEMA] PARABÉNS! O Chefe do Andar foi executado. O Andar ${player.floor} está liberado para colonização e transporte.`);
+            player.hp = player.maxHp; // Cura completa ao limpar o andar
+            gainXp(100);
+            updateUI();
+            saveGame();
         }
 
-        function updateHPUI() {
-            const hpPercent = (currentHP / maxHP) * 100;
-            document.getElementById('player-hp-fill').style.width = `${hpPercent}%`;
-            document.getElementById('player-hp-text').innerText = `${currentHP.toLocaleString()} / ${maxHP.toLocaleString()} HP`;
-            
-            if (hpPercent < 30) {
-                document.getElementById('player-hp-fill').style.background = '#ff3366';
-            } else {
-                document.getElementById('player-hp-fill').style.background = 'var(--hp-green)';
+        // Processador de Forja e Crafting (Matriz de Receitas de Equipamento)
+        function craftItem(type) {
+            if(type === 'weapon') {
+                if(player.materials.iron >= 3 && player.materials.crystal >= 1) {
+                    player.materials.iron -= 3;
+                    player.materials.crystal -= 1;
+                    player.atk += 8;
+                    player.equipment.weapon = `Lâmina Recodificada [+${player.atk} ATK]`;
+                    log(`[Forja] Lisbeth moldou uma nova arma para você: ${player.equipment.weapon}`);
+                } else {
+                    log("[Erro] Recursos insuficientes no seu cache de materiais para armas.");
+                }
+            } else if(type === 'armor') {
+                if(player.materials.leather >= 4 && player.materials.crystal >= 1) {
+                    player.materials.leather -= 4;
+                    player.materials.crystal -= 1;
+                    player.def += 5;
+                    player.maxHp += 20;
+                    player.hp = player.maxHp;
+                    player.equipment.armor = `Casaco de Dados de Elite [+${player.def} DEF]`;
+                    log(`[Forja] Armadura costurada com sucesso: ${player.equipment.armor}`);
+                } else {
+                    log("[Erro] Recursos insuficientes para manufaturar armadura de placas.");
+                }
+            }
+            updateUI();
+            saveGame();
+        }
+
+        // Loop de Gerenciamento de Nível (XP)
+        function gainXp(amount) {
+            player.xp += amount;
+            if(player.xp >= player.nextLevelXp) {
+                player.xp -= player.nextLevelXp;
+                player.level += 1;
+                player.nextLevelXp = Math.floor(player.nextLevelXp * 1.5);
+                
+                // bônus de level up de classe
+                player.maxHp += 15;
+                player.hp = player.maxHp;
+                player.atk += 3;
+                player.def += 2;
+                log(`[LEVEL UP] Seu kernel expandiu! Você agora é Nível ${player.level}. Status de Hardware otimizados.`);
             }
         }
+
+        function triggerGameOver() {
+            log(`[GAME OVER] Seu HP chegou a zero. O dispositivo NerveGear disparou um pulso terminal. Seus dados de salvamento locais foram purgados.`, true);
+            updateUI();
+            localStorage.removeItem('sao_mmo_save');
+        }
+
+        function resetServerData() {
+            localStorage.removeItem('sao_mmo_save');
+            window.location.reload();
+        }
+
+        // Atualização Dinâmica do DOM do Navegador
+        function updateUI() {
+            document.getElementById('hud-name').innerText = player.name || "Desconhecido";
+            document.getElementById('hud-class').innerText = player.className || "-";
+            document.getElementById('hud-level').innerText = `LV ${player.level}`;
+            document.getElementById('hud-xp').innerText = `${player.xp}/${player.nextLevelXp}`;
+            document.getElementById('hud-floor').innerText = `ANDAR ${player.floor}`;
+            document.getElementById('hud-hp-text').innerText = `${player.hp}/${player.maxHp} HP`;
+            
+            const hpPercent = (player.hp / player.maxHp) * 100;
+            document.getElementById('hud-hp-fill').style.width = `${hpPercent}%`;
+            
+            // Indicador de cor crítica de vida
+            document.getElementById('hud-hp-fill').style.backgroundColor = hpPercent < 30 ? '#ff3366' : 'var(--hp-green)';
+
+            // Recursos
+            document.getElementById('mat-iron').innerText = player.materials.iron;
+            document.getElementById('mat-leather').innerText = player.materials.leather;
+            document.getElementById('mat-crystal').innerText = player.materials.crystal;
+
+            // Itens equipados
+            document.getElementById('eq-weapon').innerText = player.equipment.weapon;
+            document.getElementById('eq-armor').innerText = player.equipment.armor;
+        }
+
+        function log(msg, isUrgent = false) {
+            const consoleBox = document.getElementById('game-console');
+            const line = document.createElement('div');
+            line.className = "console-line";
+            if(isUrgent) line.style.color = "#ff3366";
+            line.innerHTML = `&gt; ${msg}`;
+            consoleBox.insertBefore(line, consoleBox.firstChild);
+        }
+
+        // Armazenamento em Cache Persistente (Offline/Online Sync Local)
+        function saveGame() {
+            if(player.hp > 0) {
+                localStorage.setItem('sao_mmo_save', JSON.stringify(player));
+            }
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('sao_mmo_save');
+            if(saved) {
+                player = JSON.parse(saved);
+                document.getElementById('screen-creation').classList.add('hidden');
+                document.getElementById('screen-main').classList.remove('hidden');
+                log(`Sessão recuperada. Conectado de volta ao Andar ${player.floor}.`);
+                updateUI();
+            }
+        }
+
+        window.onload = loadGame;
     </script>
 </body>
 </html>
