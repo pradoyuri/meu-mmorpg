@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAO: Aincrad OS // System Kernel v4.0</title>
+    <title>SAO: Aincrad OS // Hyper-Dive Kernel v5.0</title>
     <style>
         :root {
             --sao-orange: #ff7f00;
@@ -18,7 +18,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--sao-bg); color: var(--sao-text); padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        body { background-color: var(--sao-bg); color: var(--sao-text); padding: 10px; display: flex; flex-direction: column; align-items: center; transition: background 0.1s; }
         
         .hidden { display: none !important; }
         
@@ -26,7 +26,6 @@
         header h1 { font-size: 1.4rem; font-weight: 300; letter-spacing: 2px; }
         header h1 span { color: var(--sao-orange); font-weight: bold; }
 
-        /* Sistema de Abas Estilo Menu Flutuante SAO */
         .sao-menu-bar { display: flex; width: 100%; max-width: 950px; gap: 8px; margin-bottom: 15px; }
         .sao-menu-btn { flex: 1; background: var(--sao-panel); border: 1px solid var(--border); padding: 12px; font-weight: bold; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; border-radius: 6px; transition: all 0.2s; color: var(--sao-text); }
         .sao-menu-btn.active { background: var(--sao-orange); color: white; border-color: var(--sao-orange); box-shadow: 0 4px 12px rgba(255,127,0,0.2); }
@@ -39,7 +38,6 @@
 
         h2 { font-size: 0.95rem; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding-bottom: 5px; }
 
-        /* Barras de Vida Estilizadas */
         .hp-container { background: #e2e8f0; height: 16px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid #cbd5e1; }
         .hp-bar { height: 100%; width: 100%; background: var(--hp-green); transition: width 0.3s ease; }
         
@@ -58,22 +56,30 @@
 
         .item-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; margin-bottom: 6px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
         
-        /* Modal de Combate Emergencial */
+        /* Modais Animados */
         .battle-overlay { background: rgba(30, 39, 46, 0.98); position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
-        .battle-window { background: white; width: 100%; max-width: 520px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-top: 6px solid var(--hp-red); }
+        .battle-window { background: white; width: 100%; max-width: 520px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-top: 6px solid var(--hp-red); transition: transform 0.1s ease; }
+
+        /* Animações de Efeitos */
+        .shake { animation: screenShake 0.15s linear 2; }
+        @keyframes screenShake {
+            0% { transform: translate(3px, 3px); }
+            50% { transform: translate(-3px, -3px); }
+            100% { transform: translate(0, 0); }
+        }
     </style>
 </head>
 <body>
 
-    <!-- TELA REGISTRO INICIAL -->
+    <!-- AUTENTICAÇÃO INICIAL -->
     <div class="panel" id="screen-creation" style="width:100%; max-width:420px; margin-top:60px;">
-        <h2>[NERVEGEAR INTEGRATION] CONFIG</h2>
+        <h2>[NERVEGEAR CORE] AUTH</h2>
         <div style="margin-bottom:12px;">
-            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Assinatura Digital (Name)</label>
-            <input type="text" id="input-name" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px;" placeholder="Seu ID no jogo...">
+            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Identidade Virtual (ID)</label>
+            <input type="text" id="input-name" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px;" placeholder="Seu apelido no jogo...">
         </div>
         <div style="margin-bottom:18px;">
-            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Estrutura de Arma Inicial</label>
+            <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">Árvore Inicial de Armas</label>
             <select id="input-class" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; background:white;">
                 <option value="espada_1h">Espada de Uma Mão (Equilibrado + Escudo)</option>
                 <option value="florete">Florete (Dano Perfurante Veloz)</option>
@@ -87,144 +93,164 @@
         <button class="action-btn" style="width:100%; padding:12px;" onclick="createNewCharacter()">LINK START</button>
     </div>
 
-    <!-- PAINEL DE CONTROLE DE AINCRAD -->
+    <!-- AMBIENTE MULTIABA DE AINCRAD -->
     <div class="game-container hidden" id="screen-main">
         <header>
             <h1>AINCRAD <span>INTERFACE</span></h1>
             <div id="hud-floor" style="font-weight:bold; color:var(--sao-orange);">ANDAR 1</div>
         </header>
 
-        <!-- Menu Estilo SAO -->
         <div class="sao-menu-bar">
             <button class="sao-menu-btn active" id="tab-btn-status" onclick="switchTab('status')">Status</button>
             <button class="sao-menu-btn" id="tab-btn-field" onclick="switchTab('field')">Zonas de Campo</button>
-            <button class="sao-menu-btn" id="tab-btn-craft" onclick="switchTab('craft')">Forja & Inventário</button>
+            <button class="sao-menu-btn" id="tab-btn-craft" onclick="switchTab('craft')">Forja & Bolsa</button>
         </div>
 
-        <!-- ABA 1: STATUS DO AVATAR -->
+        <!-- ABAS -->
         <div id="tab-status" class="tab-content">
             <div class="panel">
                 <h2><span id="hud-name">Player</span> <span id="hud-level" style="color:var(--sao-orange)">LV 1</span></h2>
                 <div style="font-size:0.8rem; color:#7f8c8d; margin-bottom:12px;">
-                    Árvore Logada: <span id="hud-class" style="color:#2c3e50; font-weight:bold;">-</span> | XP: <span id="hud-xp">0/100</span>
+                    Estilo: <span id="hud-class" style="color:#2c3e50; font-weight:bold;">-</span> | EXP: <span id="hud-xp">0/100</span>
                 </div>
-                <div class="item-row"><span>Poder Base de Ataque (ATK)</span><strong id="hud-atk">12</strong></div>
-                <div class="item-row"><span>Matriz de Defesa Sólida (DEF)</span><strong id="hud-def">5</strong></div>
+                <div class="item-row"><span>Poder de Ataque Ativo (ATK)</span><strong id="hud-atk">12</strong></div>
+                <div class="item-row"><span>Bloqueio de Matriz (DEF)</span><strong id="hud-def">5</strong></div>
                 <div class="item-row" style="background: rgba(0, 210, 255, 0.05); border-color: var(--sao-teal);">
-                    <span>Proficiência de Arma (Mastery)</span>
-                    <strong id="hud-mastery" style="color:var(--sao-teal);">0.0%</strong>
+                    <span>Proficiência Controlada (Mastery)</span><strong id="hud-mastery" style="color:var(--sao-teal);">0.0%</strong>
                 </div>
-
                 <div class="hp-container"><div class="hp-bar" id="hud-hp-fill"></div></div>
                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;">
-                    <span>SINAL NEURAL (HP)</span>
-                    <span id="hud-hp-text">100/100</span>
+                    <span>SINAL VITAL (HP)</span><span id="hud-hp-text">100/100</span>
                 </div>
             </div>
         </div>
 
-        <!-- ABA 2: ZONAS DE CAMPO & MISSÕES -->
         <div id="tab-field" class="tab-content hidden">
             <div class="panel">
-                <h2>Ações de Varredura e Exploração</h2>
-                <p style="font-size:0.8rem; color:#7f8c8d; margin-bottom:10px;">Entre nas instâncias táticas para obter insumos ou forçar o avanço da linha de frente.</p>
+                <h2>Varredura de Instâncias Físicas</h2>
                 <div class="btn-grid">
                     <button onclick="triggerActivity('farm')">Varrer Periferia</button>
                     <button onclick="triggerActivity('gather')">Coletar Alimentos</button>
                     <button onclick="startCombat(false)" class="action-btn">Adentrar Labirinto</button>
-                    <button onclick="restAtInn()" style="color:#3498db; border-color:#3498db;">Alugar Quarto na Estalagem</button>
+                    <button onclick="restAtInn()" style="color:#3498db; border-color:#3498db;">Ir para a Estalagem</button>
                 </div>
                 <button onclick="startCombat(true)" style="width:100%; margin-top:10px; background:var(--hp-red); color:white; border:none;">Desafiar Boss do Andar</button>
             </div>
-
             <div class="panel" style="border-left: 4px solid var(--sao-teal);">
                 <h2>Quadro de Missões Ativas</h2>
-                <div id="quest-system-box" style="font-size:0.85rem;"></div>
+                <div id="quest-system-box"></div>
             </div>
         </div>
 
-        <!-- ABA 3: FORJA & INVENTÁRIO -->
         <div id="tab-craft" class="tab-content hidden">
             <div class="panel">
-                <h2>Armazenamento de Insumos</h2>
-                <div class="item-row"><span>Minério Raro Corrente</span><strong id="mat-iron">0</strong></div>
+                <h2>Inventário de Carga</h2>
+                <div class="item-row"><span>Minério Raro</span><strong id="mat-iron">0</strong></div>
                 <div class="item-row"><span>Ingredientes Culinários</span><strong id="mat-food">0</strong></div>
-                <div class="item-row"><span>Cristais de Fuga (Teleport)</span><strong id="mat-crystal">1</strong></div>
-                
-                <div style="font-size:0.8rem; font-weight:bold; margin-top:12px; color:var(--sao-orange);">Equipamentos Especiais & LA Bonus:</div>
-                <div id="rare-loot-list" style="font-size:0.8rem; color:#7f8c8d; margin-top:5px; line-height:1.5;">Nenhum acessório ou prêmio exclusivo coletado.</div>
+                <div class="item-row"><span>Cristais de Fuga</span><strong id="mat-crystal">1</strong></div>
+                <div id="rare-loot-list" style="font-size:0.8rem; color:#7f8c8d; margin-top:8px; line-height:1.5;"></div>
             </div>
-
             <div class="panel">
-                <h2>Matriz de Produção Tática</h2>
-                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <span id="craft-weapon-label" style="font-weight:bold;">[Arma]</span>
-                        <button onclick="craftItem('weapon')" style="padding:4px 8px;">Forjar Lâmina</button>
-                    </div>
-                    <span style="font-size:0.7rem; color:#7f8c8d;">Custo: 3 Minérios</span>
+                <h2>Quadro de Avisos de NPCs (Contratos)</h2>
+                <div id="quest-board-list"></div>
+            </div>
+            <div class="panel">
+                <h2>Forja Automática de Estrutura</h2>
+                <div class="item-row">
+                    <span id="craft-weapon-label" style="font-weight:bold;">[Arma]</span>
+                    <button onclick="craftItem('weapon')">Sintetizar Weapon</button>
                 </div>
-                <div class="item-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
-                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                        <span id="craft-armor-label" style="font-weight:bold;">[Armadura]</span>
-                        <button onclick="craftItem('armor')" style="padding:4px 8px;">Curtir Placas</button>
-                    </div>
-                    <span style="font-size:0.7rem; color:#7f8c8d;">Custo: 2 Minérios, 1 Alimento</span>
+                <div class="item-row">
+                    <span id="craft-armor-label" style="font-weight:bold;">[Armadura]</span>
+                    <button onclick="craftItem('armor')">Montar Placas</button>
                 </div>
-                <div style="margin-top:10px; font-size:0.8rem; border-top:1px solid #eee; padding-top:8px;">
-                    <div>Arma Empunhada: <span id="eq-weapon" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
-                    <div>Proteção Corporal: <span id="eq-armor" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
+                <div style="margin-top:10px; font-size:0.8rem;">
+                    <div>Mão Direita: <span id="eq-weapon" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
+                    <div>Proteção: <span id="eq-armor" style="color:var(--sao-orange); font-weight:bold;">-</span></div>
                 </div>
             </div>
-            <button onclick="wipeCharacter()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:10px; font-size:0.7rem;">[FORÇAR DESCONEXÃO SÚBITA / WIPE]</button>
+            <button onclick="wipeCharacter()" style="width:100%; background:#7f8c8d; color:white; border:none; padding:10px; font-size:0.7rem;">[DELETAR REGISTRO LOCAL / RESET]</button>
         </div>
 
-        <!-- CONSOLES PARALELOS REATIVOS -->
         <div class="console-grid">
-            <div class="panel" style="margin-bottom:0;">
-                <h2>Registros de Operações</h2>
+            <div class="panel">
+                <h2>Terminal Sistema</h2>
                 <div class="console" id="personal-log"></div>
             </div>
-            <div class="panel" style="margin-bottom:0;">
-                <h2>Rede de Comunicação da Vanguarda</h2>
+            <div class="panel">
+                <h2>Mural da Linha de Frente</h2>
                 <div class="console network" id="network-log"></div>
             </div>
         </div>
     </div>
 
-    <!-- TELA DE COMBATE EM TEMPO REAL -->
+    <!-- TELA DE COMBATE DINÂMICO -->
     <div class="battle-overlay hidden" id="battle-screen">
         <div class="battle-window" id="battle-window-frame">
-            <h2 style="color:var(--hp-red);"><span id="battle-header-title">EM COMBATE ATIVO</span> <span id="battle-loot-chance" style="font-size:0.7rem; color:var(--sao-orange);"></span></h2>
+            <h2 style="color:var(--hp-red);"><span id="battle-header-title">EM COMBATE</span> <span id="battle-loot-chance" style="font-size:0.7rem; color:var(--sao-orange);"></span></h2>
             <div style="background:#f8fafc; padding:12px; border-radius:6px; border:1px solid var(--border); margin-bottom:12px;">
                 <div style="font-weight:bold; font-size:1rem;" id="enemy-name">-</div>
                 <div class="hp-container" style="height:10px;"><div class="hp-bar" id="enemy-hp-fill" style="background:var(--hp-red);"></div></div>
                 <div style="text-align:right; font-size:0.75rem; font-weight:bold;" id="enemy-hp-text">-</div>
             </div>
-            <div style="margin-bottom:15px; font-size:0.8rem; height:50px; overflow-y:auto; color:#64748b; line-height:1.4;" id="battle-status-text">-</div>
+            <div style="margin-bottom:15px; font-size:0.8rem; height:50px; overflow-y:auto; color:#64748b;" id="battle-status-text">-</div>
             <div class="btn-grid">
-                <button class="action-btn" onclick="executeCombatTurn('attack')">Ataque Padrão</button>
-                <button id="btn-battle-skill" style="background:var(--sao-teal); color:white; border:none;" onclick="executeCombatTurn('skill')">Skill</button>
+                <button class="action-btn" onclick="executeCombatTurn('attack')">Ataque Linear</button>
+                <button id="btn-battle-skill" style="background:var(--sao-teal); color:white; border:none;" onclick="executeCombatTurn('skill')">Sword Skill</button>
                 <button onclick="executeCombatTurn('defend')">Parry</button>
-                <button style="background:#3498db; color:white; border:none;" onclick="executeCombatTurn('escape')">Usar Cristal Fuga</button>
+                <button style="background:#3498db; color:white; border:none;" onclick="executeCombatTurn('escape')">Usar Cristal</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Banco de Dados Estendido do Universo
+        // Engine de Efeitos de Áudio Sintetizado Nativizado (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'slash') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'damage') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'victory') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+                    setTimeout(() => {
+                        let osc2 = audioCtx.createOscillator(); osc2.connect(gain);
+                        osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                        osc2.start(); osc2.stop(audioCtx.currentTime + 0.2);
+                    }, 100);
+                }
+            } catch(e) { console.log("Áudio bloqueado ou não suportado."); }
+        }
+
         const monsterDatabase = {
-            low: [{ name: "Lobo Ruivo das Estepes", hp: 40, atk: 10, drop: "Anel do Vento Escasso (+1 DEF)" }],
-            mid: [{ name: "Lagarto da Armadura de Silício", hp: 140, atk: 25, drop: "Pingente da Guilda Fuurinkazan (+5 ATK)" }],
-            high: [{ name: "Guerreiro de Elite Demôniaco", hp: 380, atk: 52, drop: "Amuleto do Coração Sagrado (+20 HP)" }]
+            low: [{ name: "Lobo de Garras de Sílica", hp: 45, atk: 11, drop: "Anel do Vento Leve (+1 DEF)" }],
+            mid: [{ name: "Serpente das Ruínas de Cristal", hp: 150, atk: 26, drop: "Pingente da Guilda Fuurinkazan (+6 ATK)" }],
+            high: [{ name: "Guerreiro Elite da Foice Quebrada", hp: 400, atk: 55, drop: "Amuleto do Coração Sagrado (+25 HP)" }]
         };
 
         const bossDatabase = {
-            1: { name: "Illfang, o Senhor dos Kobolds", laBonus: "Casaco da Meia-Noite (LA Bonus) [+5 DEF]" },
-            10: { name: "Kagachi, o Samurai de Olhos Rubros", laBonus: "Cimitarra de Muramasa (LA Bonus) [+15 ATK]" },
-            25: { name: "O Ceifador de Almas Enclausurado", laBonus: "Anel do Conquistador (LA Bonus) [+40 HP]" },
-            50: { name: "The Gleam Eyes (O Demônio de Chifres)", laBonus: "Lâmina Elucidator (LA Bonus) [+35 ATK]" },
-            75: { name: "The Skull Reaper (O Verme de Ossos)", laBonus: "Armadura do Abraço Divino (LA Bonus) [+30 DEF]" }
+            1: { name: "Illfang, o Senhor dos Kobolds", laBonus: "Casaco da Meia-Noite (LA Bonus) [+6 DEF]" },
+            10: { name: "Kagachi, o Samurai de Olhos Rubros", laBonus: "Cimitarra de Muramasa (LA Bonus) [+18 ATK]" },
+            25: { name: "O Ceifador de Almas Enclausurado", laBonus: "Anel do Conquistador (LA Bonus) [+45 HP]" },
+            50: { name: "The Gleam Eyes (O Demônio Azul)", laBonus: "Lâmina Elucidator (LA Bonus) [+40 ATK]" }
         };
 
         const questDatabase = [
@@ -241,6 +267,7 @@
         };
 
         let currentEnemy = null;
+        let skillCooldown = 0;
 
         const classDefinitions = {
             espada_1h: { name: "Espada de Uma Mão", hp: 120, atk: 12, def: 8, skill: "Horizontal Square" },
@@ -252,11 +279,10 @@
             cimitarra: { name: "Cimitarra", hp: 110, atk: 15, def: 5, skill: "Reaver Slash" }
         };
 
-        // Controlador de Alternância das Abas Holográficas
         function switchTab(tabId) {
+            playSound('click');
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.sao-menu-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tabId}`).classList.add('active');
         }
@@ -264,7 +290,6 @@
         function createNewCharacter() {
             const nameInput = document.getElementById('input-name').value.trim();
             if (!nameInput) { alert("Assinatura obrigatória para link neural."); return; }
-
             const cId = document.getElementById('input-class').value;
             const cDef = classDefinitions[cId];
 
@@ -274,13 +299,14 @@
             document.getElementById('screen-creation').classList.add('hidden');
             document.getElementById('screen-main').classList.remove('hidden');
 
+            playSound('victory');
             logPersonal(`Link Start estabelecido. Registro sincronizado sob ID: ${player.name}`);
             updateUI(); saveGame();
         }
 
-        // Sistema de Campo Tradicional
         function triggerActivity(type) {
             if (player.hp <= 0) return;
+            playSound('click');
             if (type === 'farm') {
                 const iron = Math.floor(Math.random() * 2) + 1; player.materials.iron += iron;
                 logPersonal(`Campo: Recolheu +${iron} Minério Metálico na periferia.`);
@@ -294,6 +320,7 @@
         }
 
         function restAtInn() {
+            playSound('click');
             if (player.materials.food >= 1) {
                 player.materials.food--; player.hp = player.maxHp;
                 logPersonal("Estalagem: Alimentos processados. Código vital 100% regenerado.");
@@ -303,36 +330,28 @@
             }
         }
 
-        // Sistema de Combate Atualizado com Emboscada da Guilda Laranja (Caixão Sorridente)
         function startCombat(isBoss = false) {
             if (player.hp <= 0) return;
+            playSound('click');
+            skillCooldown = 0;
+            document.getElementById('btn-battle-skill').disabled = false;
 
             let eName = ""; let eHp = 0; let eAtk = 0; let drop = ""; let isPk = false;
 
-            // 15% de chance de interceptação PK caso não seja Boss do andar
             if (!isBoss && Math.random() < 0.15) {
-                isPk = true;
-                eName = "Kuradeel [Laughing Coffin Agent]";
-                eHp = (player.floor * 35) + 40;
-                eAtk = (player.floor * 6) + 15;
-                drop = "Capuz do Assassino Laranja (+4 ATK)";
+                isPk = true; eName = "PoH [Laughing Coffin Leader]";
+                eHp = (player.floor * 35) + 50; eAtk = (player.floor * 6) + 16; drop = "Manto do Assassino Laranja (+5 ATK)";
                 document.getElementById('battle-window-frame').className = "battle-window pk-event";
-                document.getElementById('battle-header-title').innerText = "⚠️ CÓDIGO INTERCEPTADO: EMBOSCADA PK";
+                document.getElementById('battle-header-title').innerText = "⚠️ INTERCEPTAÇÃO: EMBOSCADA DA CAIXÃO SORRIDENTE";
             } else if (isBoss) {
                 const boss = bossDatabase[player.floor] || { name: `Soberano do Andar ${player.floor}`, laBonus: "Código do Chefe" };
-                eName = boss.name;
-                eHp = player.floor * 170 + 120;
-                eAtk = player.floor * 14 + 14;
-                drop = boss.laBonus;
+                eName = boss.name; eHp = player.floor * 170 + 120; eAtk = player.floor * 14 + 14; drop = boss.laBonus;
                 document.getElementById('battle-window-frame').className = "battle-window";
                 document.getElementById('battle-header-title').innerText = "CONVENÇÃO DE RAID: BOSS DE ANDAR";
             } else {
                 let pool = player.floor >= 25 ? monsterDatabase.high : (player.floor >= 10 ? monsterDatabase.mid : monsterDatabase.low);
                 let base = pool[Math.floor(Math.random() * pool.length)];
-                eName = `${base.name} (F-${player.floor})`;
-                eHp = base.hp + (player.floor * 4);
-                eAtk = base.atk + (player.floor * 2);
-                drop = base.drop;
+                eName = `${base.name} (F-${player.floor})`; eHp = base.hp + (player.floor * 4); eAtk = base.atk + (player.floor * 2); drop = base.drop;
                 document.getElementById('battle-window-frame').className = "battle-window";
                 document.getElementById('battle-header-title').innerText = "INSTÂNCIA EM EXECUÇÃO";
             }
@@ -340,7 +359,7 @@
             currentEnemy = { name: eName, hp: eHp, maxHp: eHp, atk: eAtk, isBoss: isBoss, isPk: isPk, drop: drop };
             document.getElementById('battle-loot-chance').innerText = `RECOMPENSA: ${drop}`;
             document.getElementById('btn-battle-skill').innerText = classDefinitions[player.classId].skill;
-            document.getElementById('battle-status-text').innerText = `${currentEnemy.name} travou a mira no seu avatar. Ação imediata requerida!`;
+            document.getElementById('battle-status-text').innerText = `${currentEnemy.name} travou a mira no seu avatar.`;
             
             updateBattleUI();
             document.getElementById('battle-screen').classList.remove('hidden');
@@ -353,31 +372,53 @@
             let eDmg = Math.max(1, currentEnemy.atk - player.def);
             let txt = "";
 
-            // Aumento Gradual de Proficiência de Arma a cada ataque executado
             player.mastery = parseFloat((player.mastery + 0.4).toFixed(1));
 
+            // Feedback visual de pancada
+            const win = document.getElementById('battle-window-frame');
+            win.classList.remove('shake'); void win.offsetWidth; win.classList.add('shake');
+
             if (action === 'skill') {
-                pDmg = Math.floor(pDmg * 1.9);
-                txt += `Você desferiu a Sword Skill [${classDefinitions[player.classId].skill}] aplicando ${pDmg} de dano crítico. `;
+                if(skillCooldown > 0) return;
+                playSound('slash');
+                pDmg = Math.floor(pDmg * 2.1);
+                skillCooldown = 3; // Trava por 3 turnos
+                document.getElementById('btn-battle-skill').disabled = true;
+                txt += `Sword Skill [${classDefinitions[player.classId].skill}] aplicada! Causou ${pDmg} de dano. `;
             } else if (action === 'defend') {
+                playSound('click');
                 pDmg = Math.floor(pDmg * 0.2); eDmg = Math.max(1, Math.floor(eDmg * 0.15));
-                txt += `Parry executado com sucesso. Impacto reduzido a níveis mínimos! `;
+                txt += `Parry executado. Impacto mitigado! `;
             } else if (action === 'escape') {
                 if (player.materials.crystal >= 1) {
                     player.materials.crystal--; document.getElementById('battle-screen').classList.add('hidden');
                     currentEnemy = null; logPersonal("CRISTAL: Comando 'Teleport!' aceito. Evacuação concluída.");
                     updateUI(); saveGame(); return;
                 } else {
-                    document.getElementById('battle-status-text').innerText = "Ação Inválida. Você não carrega Cristais de Teleporte ativos."; return;
+                    document.getElementById('battle-status-text').innerText = "Você não carrega Cristais de Teleporte ativos."; return;
                 }
             } else {
-                txt += `Ataque direto computado. Causou ${pDmg} de dano linear. `;
+                playSound('slash');
+                txt += `Ataque direto computado. Causou ${pDmg} de dano. `;
             }
 
             currentEnemy.hp = Math.max(0, currentEnemy.hp - pDmg);
+            
             if (currentEnemy.hp > 0) {
+                playSound('damage');
                 player.hp = Math.max(0, player.hp - eDmg);
                 txt += `${currentEnemy.name} rebateu infringindo ${eDmg} de dano real.`;
+                
+                // Reduz cooldown da skill ao fim do turno do oponente
+                if(skillCooldown > 0) {
+                    skillCooldown--;
+                    if(skillCooldown === 0) {
+                        document.getElementById('btn-battle-skill').disabled = false;
+                        document.getElementById('btn-battle-skill').innerText = classDefinitions[player.classId].skill;
+                    } else {
+                        document.getElementById('btn-battle-skill').innerText = `${classDefinitions[player.classId].skill} (${skillCooldown})`;
+                    }
+                }
             }
 
             document.getElementById('battle-status-text').innerText = txt;
@@ -386,29 +427,29 @@
             if (player.hp <= 0) {
                 document.getElementById('battle-screen').classList.add('hidden'); triggerGameOver();
             } else if (currentEnemy.hp <= 0) {
+                playSound('victory');
                 resolveVictory();
             }
         }
 
         function resolveVictory() {
             document.getElementById('battle-screen').classList.add('hidden');
-            let xp = 40 + (player.floor * 8); player.materials.iron++;
+            let xp = 45 + (player.floor * 8); player.materials.iron++;
 
             if (currentEnemy.isPk) {
-                logPersonal(`JUSTIÇA: O Player Killer ${currentEnemy.name} foi eliminado antes de corromper sua conta.`, true);
+                logPersonal(`JUSTIÇA: O Player Killer ${currentEnemy.name} foi desintegrado.`, true);
                 xp *= 2;
             } else {
-                logPersonal(`Combate: ${currentEnemy.name} dissolvido. Adquirido +1 Lote Metálico.`);
+                logPersonal(`Combate: ${currentEnemy.name} dissolvido em fragmentos geométricos.`);
             }
 
-            // Sistema de Rolagem de Drops Raros / LA Bonus
             if (currentEnemy.isBoss || (Math.random() > 0.7 && currentEnemy.drop)) {
                 if (!player.rares.includes(currentEnemy.drop)) {
                     player.rares.push(currentEnemy.drop);
-                    logPersonal(`[RECOMPENSA EXCLUSIVA] Adquiriu: ${currentEnemy.drop}`, true);
-                    if (currentEnemy.drop.includes("ATK")) player.atk += 8;
-                    if (currentEnemy.drop.includes("DEF")) player.def += 4;
-                    if (currentEnemy.drop.includes("HP")) player.maxHp += 25;
+                    logPersonal(`[RECOMPENSA EXCLUSIVA/LA BONUS] Adquiriu: ${currentEnemy.drop}`, true);
+                    if (currentEnemy.drop.includes("ATK")) player.atk += 10;
+                    if (currentEnemy.drop.includes("DEF")) player.def += 5;
+                    if (currentEnemy.drop.includes("HP")) player.maxHp += 30;
                 }
             }
 
@@ -420,12 +461,12 @@
             gainXp(xp); currentEnemy = null; updateUI(); saveGame();
         }
 
-        // Gestão das Missões Dinâmicas
         function acceptQuest(id) {
-            if (player.activeQuest) return;
+            playSound('click');
+            if (player.activeQuest) { logPersonal("Missão: Você já possui um contrato pendente."); return; }
             const q = questDatabase.find(x => x.id === id);
             player.activeQuest = { id: q.id, title: q.title, type: q.type, progress: 0, target: q.target, xp: q.xp, crystal: q.crystal };
-            logPersonal(`Missão: Contrato [${q.title}] ativado no menu flutuante.`);
+            logPersonal(`Contrato: Missão [${q.title}] de ${q.npc} aceita.`);
             updateUI(); saveGame();
         }
 
@@ -436,16 +477,18 @@
         }
 
         function claimQuest() {
+            playSound('victory');
             if (!player.activeQuest || player.activeQuest.progress < player.activeQuest.target) return;
             gainXp(player.activeQuest.xp); player.materials.crystal += player.activeQuest.crystal;
-            logPersonal(`Missão: Recompensas da tarefa sincronizadas com a carteira central.`);
+            logPersonal(`Missão: Recompensas da tarefa sincronizadas com a carteira.`);
             player.activeQuest = null; updateUI(); saveGame();
         }
 
         function craftItem(type) {
+            playSound('click');
             const next = getTierNames(player.floor);
             if (type === 'weapon' && player.materials.iron >= 3) {
-                player.materials.iron -= 3; player.atk += 5 + (player.floor * 2);
+                player.materials.iron -= 3; player.atk += 6 + (player.floor * 2);
                 player.equipment.weapon = `${next.weapon} (Andar ${player.floor})`;
                 logPersonal(`Forja: Lâmina moldada com sucesso: ${player.equipment.weapon}`);
             } else if (type === 'armor' && player.materials.iron >= 2 && player.materials.food >= 1) {
@@ -454,9 +497,16 @@
                 player.equipment.armor = `${next.armor} (Andar ${player.floor})`;
                 logPersonal(`Forja: Equipou uma blindagem reforçada.`);
             } else {
-                logPersonal("Forja: Componentes moleculares insuficientes para sintetização.");
+                logPersonal("Forja: Componentes moleculares insuficientes.");
             }
             updateUI(); saveGame();
+        }
+
+        function getTierNames(floor) {
+            if (floor >= 50) return { weapon: "Elucidator Prototipada", armor: "Manto Black Wyrm" };
+            if (floor >= 25) return { weapon: "Lâmina de Aço Negro", armor: "Couraça de Prata" };
+            if (floor >= 10) return { weapon: "Glaive de Bronze Guardião", armor: "Casaco da Meia Noite" };
+            return { weapon: "Lâmina de Ferro Forjado", armor: "Armadura Leve de Couro" };
         }
 
         function gainXp(amt) {
@@ -465,21 +515,22 @@
                 player.xp -= player.nextLevelXp; player.level++;
                 player.nextLevelXp = Math.floor(player.nextLevelXp * 1.6);
                 player.maxHp += 15; player.hp = player.maxHp; player.atk += 3; player.def += 2;
-                logPersonal(`[SISTEMA] Nível do Avatar atualizado: Nivel ${player.level}. Core otimizado.`);
+                logPersonal(`[SISTEMA] Nível do Avatar atualizado: Nivel ${player.level}.`);
             }
         }
 
         function triggerGameOver() {
+            playSound('damage');
             document.getElementById('status-panel').classList.add('danger');
-            logPersonal("CRÍTICO: Seu HP zerou. O NerveGear ativou a descarga de micro-ondas contra o cérebro. Sessão encerrada.", true);
-            localStorage.removeItem('sao_matrix_v40');
+            logPersonal("CRÍTICO: Seu HP zerou. O NerveGear ativou a descarga terminal contra o cérebro.", true);
+            localStorage.removeItem('sao_matrix_v50');
         }
 
-        function wipeCharacter() { localStorage.removeItem('sao_matrix_v40'); window.location.reload(); }
+        function wipeCharacter() { localStorage.removeItem('sao_matrix_v50'); window.location.reload(); }
 
         function simulateLobby() {
             const lines = [
-                "Guilda 'Cavaleiros do Juramento de Sangue' convocou reunião estratégica.",
+                "Guilda 'Cavaleiros do Juramento de Sangue' convocou reunião tática.",
                 "Egil: Compro Minérios Metálicos no Andar 50 por bom preço!",
                 "Informativo: Sala do Boss mapeada por batedores avançados.",
                 "Alerta de Vanguarda: Evitem rotas secundárias sem Cristais de Fuga logados."
@@ -515,7 +566,7 @@
             document.getElementById('craft-weapon-label').innerText = `[Arma] ${next.weapon}`;
             document.getElementById('craft-armor-label').innerText = `[Armadura] ${next.armor}`;
 
-            // Render do Bloco de Quests
+            // Render do Quadro Ativo
             const qBox = document.getElementById('quest-system-box');
             if (player.activeQuest) {
                 let ready = player.activeQuest.progress >= player.activeQuest.target;
@@ -523,22 +574,35 @@
                     <div class="item-row" style="flex-direction:column; align-items:flex-start;">
                         <strong>${player.activeQuest.title}</strong>
                         <span style="font-size:0.75rem; color:#64748b;">Avanço: [${player.activeQuest.progress}/${player.activeQuest.target}]</span>
-                        ${ready ? '<button class="action-btn" style="width:100%; margin-top:5px; padding:4px;" onclick="claimQuest()">Resgatar Prêmios</button>' : '<span style="color:var(--sao-orange); font-size:0.7rem; margin-top:3px;">Processando objetivos em campo...</span>'}
+                        ${ready ? '<button class="action-btn" style="width:100%; margin-top:5px; padding:4px;" onclick="claimQuest()">Resgatar Prêmios</button>' : '<span style="color:var(--sao-orange); font-size:0.7rem; margin-top:3px;">Processando em campo...</span>'}
                     </div>`;
             } else {
-                qBox.innerHTML = "<p style='color:#94a3b8; font-style:italic;'>Quadro vazio. Acesse o menu de Forja/Inventário para ver contratos de NPCs disponíveis.</p>";
+                qBox.innerHTML = "<p style='color:#94a3b8; font-style:italic;'>Sem contratos ativos de caça no menu.</p>";
             }
 
-            // Lista de Raros
+            // Render do Quadro de Aceite (Correção do Bug do Painel Oculto)
+            const bBox = document.getElementById('quest-board-list');
+            bBox.innerHTML = "";
+            questDatabase.forEach(q => {
+                let statusButton = player.activeQuest ? 'disabled' : '';
+                let row = document.createElement('div');
+                row.className = "item-row";
+                row.innerHTML = `
+                    <div>
+                        <strong>${q.title}</strong> <span style="font-size:0.7rem; color:var(--sao-orange);">(${q.npc})</span>
+                        <div style="font-size:0.7rem; color:#7f8c8d;">Objetivo: Acumular ${q.target} insumos.</div>
+                    </div>
+                    <button ${statusButton} style="padding:4px 8px; font-size:0.7rem;" onclick="acceptQuest(${q.id})">Aceitar</button>
+                `;
+                bBox.appendChild(row);
+            });
+
             const rBox = document.getElementById('rare-loot-list');
             if (player.rares.length > 0) {
                 rBox.innerHTML = player.rares.map(x => `<div style="color:var(--sao-orange); font-weight:bold;">✦ ${x}</div>`).join('');
             } else {
                 rBox.innerHTML = "Nenhum drop raro ou prêmio LA Bonus registrado.";
             }
-
-            // Atualização do quadro de aceite
-            const fBox = document.getElementById('quest-board-list');
         }
 
         function updateBattleUI() {
@@ -554,15 +618,15 @@
             el.innerHTML = `&gt; ${msg}`; l.insertBefore(el, l.firstChild);
         }
 
-        function saveGame() { if (player.hp > 0) localStorage.setItem('sao_matrix_v40', JSON.stringify(player)); }
+        function saveGame() { if (player.hp > 0) localStorage.setItem('sao_matrix_v50', JSON.stringify(player)); }
 
         function loadGame() {
-            const saved = localStorage.getItem('sao_matrix_v40');
+            const saved = localStorage.getItem('sao_matrix_v50');
             if (saved) {
                 player = JSON.parse(saved);
                 document.getElementById('screen-creation').classList.add('hidden');
                 document.getElementById('screen-main').classList.remove('hidden');
-                logPersonal(`Kernel restaurado. Sessão ativa mantida no Andar ${player.floor}.`);
+                logPersonal(`Autenticação restaurada. Retornando ao ponto ativo do Andar ${player.floor}.`);
                 updateUI();
             }
         }
