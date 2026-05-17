@@ -3,534 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aincrad.sys - RPG de Mesa Offline</title>
+    <title>SAO: Link Start // MMORPG Prototype</title>
     <style>
         :root {
-            --bg-color: #0d0e12;
-            --panel-bg: #161920;
-            --accent-color: #00ffcc;
-            --accent-danger: #ff3366;
-            --text-color: #e2e8f0;
-            --text-muted: #718096;
-            --border-color: #2d3748;
+            --sao-orange: #ff7f00;
+            --sao-dark: #11151c;
+            --sao-panel: #1e2530;
+            --sao-ui-blue: #00d2ff;
+            --text-color: #ffffff;
+            --hp-green: #2ecc71;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--sao-dark);
             color: var(--text-color);
-            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 15px;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 20px;
             width: 100%;
-            max-width: 800px;
-            border-bottom: 2px solid var(--accent-color);
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--sao-orange);
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         header h1 {
-            color: var(--accent-color);
-            font-size: 1.8rem;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--sao-orange);
         }
 
-        header p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-top: 5px;
+        .server-status {
+            font-size: 0.85rem;
+            color: var(--sao-ui-blue);
+            background: rgba(0, 210, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: 1px solid var(--sao-ui-blue);
         }
 
-        .container {
+        .main-grid {
             width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: 5px;
-            width: 100%;
+        @media (min-width: 768px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr;
+            }
         }
 
-        .tab-btn {
-            flex: 1;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn.active {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-            background: rgba(0, 255, 204, 0.05);
-        }
-
-        .tab-content {
-            display: none;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
+        .panel {
+            background: var(--sao-panel);
+            border: 1px solid #2c3545;
+            border-radius: 6px;
             padding: 20px;
-            border-radius: 4px;
+            position: relative;
         }
 
-        .tab-content.active {
-            display: block;
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--sao-orange);
+            border-radius: 6px 0 0 6px;
         }
 
-        /* Regras Estilo Livro */
-        .rules-section h2 {
-            color: var(--accent-color);
+        h2 {
+            font-size: 1.1rem;
             margin-bottom: 15px;
-            font-size: 1.3rem;
-            border-left: 3px solid var(--accent-color);
-            padding-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--sao-orange);
         }
 
-        .rules-section p, .rules-section ul {
-            margin-bottom: 15px;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        .rules-section ul {
-            padding-left: 20px;
-        }
-
-        .alert-box {
-            border: 1px solid var(--accent-danger);
-            background: rgba(255, 51, 102, 0.05);
-            padding: 15px;
-            color: var(--accent-danger);
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-
-        /* Ficha de Personagem */
-        .grid-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 11fr);
+        /* Status do Jogador */
+        .player-card {
+            display: flex;
+            align-items: center;
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-box {
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-        }
-
-        .stat-box label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        .stat-box input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--border-color);
-            color: #fff;
-            font-size: 1.1rem;
-            padding: 5px 0;
-        }
-
-        .stat-box input:focus {
-            outline: none;
-            border-bottom-color: var(--accent-color);
-        }
-
-        /* Grid de Atributos Numericos */
-        .grid-attributes {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        @media(min-width: 600px) {
-            .grid-attributes { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        /* Painel de Recursos Mecânicos */
-        .resource-bar {
-            margin-top: 15px;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border: 1px solid var(--border-color);
-        }
-
-        .resource-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .resource-control button {
-            background: var(--border-color);
-            border: none;
-            color: white;
-            padding: 5px 15px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .resource-control button:active {
-            background: var(--accent-color);
-        }
-
-        /* Rolador de Dados & Combate */
-        .dice-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        @media(min-width: 600px) {
-            .dice-container { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        .btn-dice {
-            background: #232834;
-            color: #fff;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        .btn-dice:hover {
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-
-        .dice-modifier {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .dice-modifier input {
+        .avatar-frame {
             width: 60px;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 5px;
-            text-align: center;
+            height: 60px;
+            background: #34495e;
+            border: 2px solid var(--sao-ui-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
-        .console-log {
-            background: #000;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            height: 200px;
-            overflow-y: auto;
-            border-radius: 4px;
+        .hp-bar-container {
+            flex-grow: 1;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
             font-size: 0.85rem;
-            color: #33ff33;
+            margin-bottom: 4px;
         }
 
-        .console-entry {
-            margin-bottom: 8px;
-            border-bottom: 1px dashed #113311;
-            padding-bottom: 4px;
+        .hp-bar {
+            width: 100%;
+            height: 12px;
+            background: #111;
+            border-radius: 6px;
+            overflow: hidden;
         }
+
+        .hp-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--hp-green);
+            transition: width 0.3s ease;
+        }
+
+        /* Sistema de Chat */
+        .chat-box {
+            height: 250px;
+            background: #0b0d13;
+            border: 1px solid #2c3545;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .chat-msg {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .msg-system { color: var(--sao-ui-blue); }
+        .msg-player { color: var(--sao-orange); font-weight: bold; }
+        .msg-alert { color: #ff3366; font-weight: bold; }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            background: #0b0d13;
+            border: 1px solid #2c3545;
+            padding: 10px;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: var(--sao-orange);
+        }
+
+        button {
+            background: var(--sao-orange);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #e06f00;
+        }
+
+        /* Tabela da Party (Equipe) */
+        .party-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .party-table th, .party-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #2c3545;
+        }
+
+        .party-table th {
+            color: var(--sao-orange);
+        }
+
+        .status-online { color: var(--hp-green); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>AINCRAD.sys // RPG ENGINE</h1>
-        <p>Protocolo Full-Dive de Mesa Offline v3.0.26</p>
+        <h1>SAO // NET_MATRIX</h1>
+        <div class="server-status" id="connection-status">CONECTADO AO ANDAR 74</div>
     </header>
 
-    <div class="container">
-        <!-- Navegação de Abas -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="openTab('regras', this)">1. O Motor</button>
-            <button class="tab-btn" onclick="openTab('ficha', this)">2. Avatar</button>
-            <button class="tab-btn" onclick="openTab('combate', this)">3. Matriz de Dados</button>
-        </div>
-
-        <!-- ABA 1: REGRAS -->
-        <div id="regras" class="tab-content active rules-section">
-            <h2>1. Elementos Fundamentais</h2>
-            <p>Este sistema traduz a infraestrutura de uma Realidade Virtual imersiva de alta letalidade para mecânicas de mesa puras. O estado do mundo depende da interação analógica entre a narrativa e a engine matemática.</p>
-            <ul>
-                <li><strong>Ficha de Personagem:</strong> Armazena as variáveis de hardware (Atributos) e rotinas de software (Perícias/Maestrias) do seu avatar digital.</li>
-                <li><strong>Dados Poliédricos:</strong> Simuladores físicos de probabilidade e aleatoriedade de rede (D4 a D20).</li>
-            </ul>
-
-            <h2>2. Ciclo de Jogo (Fluxo de Linhas de Código)</h2>
-            <p>O fluxo roda em uma estrutura de loop infinito gerenciado pelo Mestre (Root Admin):</p>
-            <p><em>Mestre descreve o ambiente de renderização &rarr; Jogadores declaram intenção/ação &rarr; Mestre aplica a regra e o teste de sistema.</em></p>
-
-            <h2>3. Resolução de Ações (A Matemática do Kernel)</h2>
-            <p>Toda mecânica arriscada confronta o dado contra uma <strong>Classe de Dificuldade (CD)</strong> determinada pelo Mestre:</p>
-            <p style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; text-align: center; font-weight: bold;">
-                [Resultado do Dado] + [Modificador do Personagem] >= CD
-            </p>
-            <p>Se o total atingir ou superar a CD, o compilador aceita a ação. Caso contrário, ocorre um erro de execução (falha catastrófica ou contra-ataque do ambiente).</p>
-
-            <h2>4. Combate Tático e Gestão de Recursos</h2>
-            <ul>
-                <li><strong>Iniciativa:</strong> No início das hostilidades, todos rolam 1D20 + Modificador de Agilidade para sequenciar a fila física de processamento de turnos.</li>
-                <li><strong>Turnos:</strong> No seu ciclo, você pode executar 1 Movimento e 1 Ação Principal (Ataque, Cura, Sobrecarga de Código).</li>
-                <li><strong>Consumíveis:</strong> Pontos de Vida (HP) e Energia (Munição/Mana) devem ser rastreados em tempo real na aba do Avatar.</li>
-            </ul>
-
-            <div class="alert-box">
-                <strong>DIRETRIZ DE SEGURANÇA MÁXIMA (Morte Real):</strong> Se os Pontos de Vida (HP) do seu personagem zerarem, a interface neural dispara uma carga fatal. O personagem é apagado permanentemente da mesa. Não há backups. Não há comandos de ressurreição.
-            </div>
-        </div>
-
-        <!-- ABA 2: FICHA DE PERSONAGEM -->
-        <div id="ficha" class="tab-content">
-            <div class="grid-stats">
-                <div class="stat-box">
-                    <label>Nome do Jogador (Handle)</label>
-                    <input type="text" value="Kirito_Proto" id="char-name">
-                </div>
-                <div class="stat-box">
-                    <label>Classe/Maestria de Código</label>
-                    <input type="text" value="Dual-Blader Tático" id="char-class">
-                </div>
-            </div>
-
-            <h3 style="color:var(--accent-color); font-size:1rem; margin-bottom:10px;">HARDWARE DE ATRIBUTOS</h3>
-            <div class="grid-attributes">
-                <div class="stat-box">
-                    <label>FOR (Força/Massa)</label>
-                    <input type="number" value="4" id="attr-for" onchange="saveCharacterData()">
-                </div>
-                <div class="stat-box">
-                    <label>AGI (Agilidade/FPS)</label>
-                    <input type="number" value="6" id="attr-agi" onchange="saveCharacterData()">
-                </div>
-                <div class="stat-box">
-                    <label>MNT (Mente/Process.)</label>
-                    <input type="number" value="3" id="attr-mnt" onchange="saveCharacterData()">
-                </div>
-                <div class="stat-box">
-                    <label>SYN (Sintonia/Link)</label>
-                    <input type="number" value="5" id="attr-syn" onchange="saveCharacterData()">
-                </div>
-            </div>
-
-            <h3 style="color:var(--accent-color); font-size:1rem; margin-top:20px; margin-bottom:10px;">ROTINAS DE PERÍCIA (MODIFICADORES)</h3>
-            <div class="grid-attributes">
-                <div class="stat-box">
-                    <label>Furtividade (AGI)</label>
-                    <input type="number" value="4" id="skill-furt">
-                </div>
-                <div class="stat-box">
-                    <label>Medicina Virtual (MNT)</label>
-                    <input type="number" value="2" id="skill-med">
-                </div>
-                <div class="stat-box">
-                    <label>Sobrecarga Weapon (SYN)</label>
-                    <input type="number" value="5" id="skill-code">
-                </div>
-                <div class="stat-box">
-                    <label>Percepção (MNT)</label>
-                    <input type="number" value="3" id="skill-perc">
-                </div>
-            </div>
-
-            <div class="resource-bar">
-                <h3 style="color:var(--accent-danger); font-size:1rem; margin-bottom:10px;">MONITOR DE BIO-SINAIS</h3>
-                <div class="resource-control">
-                    <span>PONTOS DE VIDA (HP): <strong id="hp-display" style="color: var(--accent-danger);">50/50</strong></span>
-                    <div>
-                        <button onclick="modifyResource('hp', -5)">-5</button>
-                        <button onclick="modifyResource('hp', 5)">+5</button>
+    <div class="main-grid">
+        <!-- Coluna Esquerda: Tela de Ação e Chat -->
+        <div class="left-column" style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Painel do Jogador Principal -->
+            <div class="panel">
+                <h2>Seu Avatar</h2>
+                <div class="player-card">
+                    <div class="avatar-frame">LV 78</div>
+                    <div class="hp-bar-container">
+                        <div class="bar-label">
+                            <span>Kirito</span>
+                            <span id="player-hp-text">14.500 / 14.500 HP</span>
+                        </div>
+                        <div class="hp-bar">
+                            <div class="hp-fill" id="player-hp-fill"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="resource-control">
-                    <span>ENERGIA / MANA: <strong id="mp-display" style="color: #3399ff;">30/30</strong></span>
-                    <div>
-                        <button onclick="modifyResource('mp', -5)">-5</button>
-                        <button onclick="modifyResource('mp', 5)">+5</button>
-                    </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="triggerRaidAction()">Atacar Boss da Raid</button>
+                    <button style="background: #34495e;" onclick="useHealPotion()">Usar Poção</button>
                 </div>
             </div>
-            
-            <div class="stat-box" style="margin-top: 15px;">
-                <label>EQUIPAMENTOS / ARMAS DE MEMÓRIA ALOCADA</label>
-                <input type="text" value="Elucidator Cortadora de Código, Armadura de Placas de Dados Leves" id="char-gear">
+
+            <!-- Painel de Comunicação Multi-Lobby -->
+            <div class="panel">
+                <h2>Chat Global & Log do Servidor</h2>
+                <div class="chat-box" id="chat-box">
+                    <div class="chat-msg msg-system">[Sistema] Bem-vindo ao Sword Art Online. Sobreviva se puder.</div>
+                    <div class="chat-msg"><span class="msg-player">Asuna:</span> Alguém para farmar materiais no labirinto?</div>
+                    <div class="chat-msg"><span class="msg-player">Klein:</span> Cuidado, tem relatos de Player Killers (PK) no andar inferior!</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Digite sua mensagem na rede..." onkeydown="if(event.key === 'Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()">Enviar</button>
+                </div>
             </div>
         </div>
 
-        <!-- ABA 3: ROLADOR DE DADOS & COMBATE -->
-        <div id="combate" class="tab-content">
-            <h3 style="color:var(--accent-color); font-size:1rem; margin-bottom:15px;">EXECUÇÃO DE DADOS EM TEMPO REAL</h3>
+        <!-- Coluna Direita: Party e Rankings -->
+        <div class="right-column" style="display: flex; flex-direction: column; gap: 20px;">
             
-            <div class="dice-modifier">
-                <label>MODIFICADOR COMPLEMENTAR DE NARRATIVA:</label>
-                <input type="number" id="dice-mod" value="0">
+            <!-- Painel da Equipe Síncrona -->
+            <div class="panel">
+                <h2>Membros da Party (Online)</h2>
+                <table class="party-table">
+                    <thead>
+                        <tr>
+                            <th>Jogador</th>
+                            <th>Classe</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Asuna</strong></td>
+                            <td>Esgrimista</td>
+                            <td class="status-online">100% HP</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Klein</strong></td>
+                            <td>Samurai</td>
+                            <td class="status-online">85% HP</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agil</strong></td>
+                            <td>Tanque</td>
+                            <td style="color: #f1c40f;">50% HP</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="dice-container">
-                <button class="btn-dice" onclick="rollDice(4)">Rolar D4</button>
-                <button class="btn-dice" onclick="rollDice(6)">Rolar D6</button>
-                <button class="btn-dice" onclick="rollDice(10)">Rolar D10</button>
-                <button class="btn-dice" onclick="rollDice(20)">Rolar D20</button>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3 style="font-size:0.9rem; color: var(--text-muted);">LOG DO COMPILADOR DOS DADOS</h3>
-                <button onclick="clearLog()" style="background:transparent; border:none; color: var(--accent-danger); cursor:pointer; font-size:0.8rem;">[Limpar Histórico]</button>
-            </div>
-            
-            <div class="console-log" id="console-log">
-                <div class="console-entry">&gt; Kernel iniciado. Aguardando rolagens de dados na mesa...</div>
+            <!-- Informações do Universo -->
+            <div class="panel" style="background: rgba(255, 127, 0, 0.05);">
+                <h2>Alerta de Consequência</h2>
+                <p style="font-size: 0.85rem; line-height: 1.5; color: #cbd5e1;">
+                    A engine está configurada para morte permanente. Se o medidor de HP do painel atingir zero, os dados de salvamento do servidor local serão permanentemente deletados do cache do navegador.
+                </p>
             </div>
         </div>
     </div>
 
     <script>
-        // Gerenciamento de Abas Navegáveis
-        function openTab(tabId, btn) {
-            const contents = document.querySelectorAll('.tab-content');
-            const buttons = document.querySelectorAll('.tab-btn');
+        // Elementos de Controle
+        let currentHP = 14500;
+        const maxHP = 14500;
+
+        // Enviar Mensagem no Chat Simulado
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message === "") return;
+
+            const chatBox = document.getElementById('chat-box');
             
-            contents.forEach(content => content.classList.remove('active'));
-            buttons.forEach(button => button.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            // Mensagem do Jogador
+            const playerMsg = document.createElement('div');
+            playerMsg.className = 'chat-msg';
+            playerMsg.innerHTML = `<span class="msg-player">Você:</span> ${message}`;
+            chatBox.appendChild(playerMsg);
+
+            input.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Simulação de resposta de IA/Rede após 1 segundo
+            setTimeout(() => {
+                simulateNetworkTraffic();
+            }, 1200);
         }
 
-        // Sistema de Estado Próprio dos Recursos
-        let characterState = {
-            hp: 50,
-            maxHp: 50,
-            mp: 30,
-            maxMp: 30
-        };
+        // Simulador de eventos de rede de outros jogadores
+        function simulateNetworkTraffic() {
+            const responses = [
+                "<span class='msg-player'>Asuna:</span> Entendido! Movendo para a retaguarda.",
+                "<span class='msg-system'>[Notificação]</span> O jogador <em>Agil</em> usou um Cristal de Cura na equipe.",
+                "<span class='msg-player'>Klein:</span> O Boss tá trocando de padrão! Cuidado com o contra-ataque!"
+            ];
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            const chatBox = document.getElementById('chat-box');
+            const netMsg = document.createElement('div');
+            netMsg.className = 'chat-msg';
+            netMsg.innerHTML = randomResponse;
+            chatBox.appendChild(netMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-        function modifyResource(type, amount) {
-            if (type === 'hp') {
-                characterState.hp = Math.max(0, Math.min(characterState.maxHp, characterState.hp + amount));
-                document.getElementById('hp-display').innerText = `${characterState.hp}/${characterState.maxHp}`;
-                
-                if (characterState.hp === 0) {
-                    logToConsole("ALERTA CRÍTICO: Sinais Vitais Corrompidos. Sobrecarga Neural Iniciada. Conexão perdida permanentemente.", true);
-                } else {
-                    logToConsole(`Mecânica: HP modificado para ${characterState.hp}.`);
-                }
-            } else if (type === 'mp') {
-                characterState.mp = Math.max(0, Math.min(characterState.maxMp, characterState.mp + amount));
-                document.getElementById('mp-display').innerText = `${characterState.mp}/${characterState.maxMp}`;
-                logToConsole(`Mecânica: Energia/Mana modificada para ${characterState.mp}.`);
+        // Ação de Combate contra Boss
+        function triggerRaidAction() {
+            const chatBox = document.getElementById('chat-box');
+            
+            // Jogador Ataca
+            const attackMsg = document.createElement('div');
+            attackMsg.className = 'chat-msg msg-system';
+            attackMsg.innerHTML = `&gt; Você executou a Skill de Espada [Vorpal Strike]. Dano computado no Boss.`;
+            chatBox.appendChild(attackMsg);
+
+            // Boss Contra-Ataca proporcionalmente
+            const damageTaken = Math.floor(Math.random() * 3000) + 1000;
+            currentHP = Math.max(0, currentHP - damageTaken);
+            
+            updateHPUI();
+
+            const bossMsg = document.createElement('div');
+            bossMsg.className = 'chat-msg msg-alert';
+            bossMsg.innerHTML = `[ALERTA] O Boss de Raide contra-atacou! Você recebeu ${damageTaken} de dano direto.`;
+            chatBox.appendChild(bossMsg);
+
+            if (currentHP === 0) {
+                const deathMsg = document.createElement('div');
+                deathMsg.className = 'chat-msg msg-alert';
+                deathMsg.innerHTML = `[GAME OVER] Seu sinal vital foi encerrado. Limpando dados do avatar...`;
+                chatBox.appendChild(deathMsg);
+                document.getElementById('connection-status').innerText = "CONEXÃO CAÍDA (SINAL APAGADO)";
+                document.getElementById('connection-status').style.borderColor = "#ff3366";
+                document.getElementById('connection-status').style.color = "#ff3366";
             }
-            saveCharacterData();
+
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Engine de Geração Aleatória de Dados
-        function rollDice(sides) {
-            const rawRoll = Math.floor(Math.random() * sides) + 1;
-            const inputMod = parseInt(document.getElementById('dice-mod').value) || 0;
-            const total = rawRoll + inputMod;
+        function useHealPotion() {
+            if (currentHP === 0) return;
+            currentHP = Math.min(maxHP, currentHP + 4000);
+            updateHPUI();
             
-            let logMsg = `&gt; Rolo de D${sides}: Result [${rawRoll}] + Modificador [${inputMod}] = Total Final [ ${total} ]`;
+            const chatBox = document.getElementById('chat-box');
+            const healMsg = document.createElement('div');
+            healMsg.className = 'chat-msg msg-system';
+            healMsg.innerHTML = `&gt; Você consumiu [Poção de Cura de Alto Nível]. Recobrou 4.000 HP.`;
+            chatBox.appendChild(healMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function updateHPUI() {
+            const hpPercent = (currentHP / maxHP) * 100;
+            document.getElementById('player-hp-fill').style.width = `${hpPercent}%`;
+            document.getElementById('player-hp-text').innerText = `${currentHP.toLocaleString()} / ${maxHP.toLocaleString()} HP`;
             
-            if (sides === 20) {
-                if (rawRoll === 20) logMsg += " -- ACERTO CRÍTICO DO KERNEL!";
-                if (rawRoll === 1) logMsg += " -- ERRO DE EXECUÇÃO CRÍTICO!";
+            if (hpPercent < 30) {
+                document.getElementById('player-hp-fill').style.background = '#ff3366';
+            } else {
+                document.getElementById('player-hp-fill').style.background = 'var(--hp-green)';
             }
-            
-            logToConsole(logMsg);
-        }
-
-        function logToConsole(message, isDanger = false) {
-            const consoleLog = document.getElementById('console-log');
-            const entry = document.createElement('div');
-            entry.className = 'console-entry';
-            if (isDanger) {
-                entry.style.color = 'var(--accent-danger)';
-                entry.style.fontWeight = 'bold';
-            }
-            entry.innerHTML = message;
-            consoleLog.insertBefore(entry, consoleLog.firstChild);
-        }
-
-        function clearLog() {
-            document.getElementById('console-log').innerHTML = '<div class="console-entry">&gt; Registros limpos pelo Root Admin.</div>';
-        }
-
-        // Persistência em cache local (Local Storage) para salvar os dados offline no celular/PC
-        function saveCharacterData() {
-            const characterData = {
-                name: document.getElementById('char-name').value,
-                class: document.getElementById('char-class').value,
-                gear: document.getElementById('char-gear').value,
-                for: document.getElementById('attr-for').value,
-                agi: document.getElementById('attr-agi').value,
-                mnt: document.getElementById('attr-mnt').value,
-                syn: document.getElementById('attr-syn').value,
-                state: characterState
-            };
-            localStorage.setItem('aincrad_char_save', JSON.stringify(characterData));
-        }
-
-        function loadCharacterData() {
-            const savedData = localStorage.getItem('aincrad_char_save');
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                document.getElementById('char-name').value = data.name || '';
-                document.getElementById('char-class').value = data.class || '';
-                document.getElementById('char-gear').value = data.gear || '';
-                document.getElementById('attr-for').value = data.for || 0;
-                document.getElementById('attr-agi').value = data.agi || 0;
-                document.getElementById('attr-mnt').value = data.mnt || 0;
-                document.getElementById('attr-syn').value = data.syn || 0;
-                if (data.state) {
-                    characterState = data.state;
-                    document.getElementById('hp-display').innerText = `${characterState.hp}/${characterState.maxHp}`;
-                    document.getElementById('mp-display').innerText = `${characterState.mp}/${characterState.maxMp}`;
-                }
-            }
-        }
-
-        // Eventos Automáticos ao Carregar a Janela
-        window.onload = function() {
-            loadCharacterData();
-            // Vincula salvamento automático nas alterações textuais
-            document.getElementById('char-name').addEventListener('input', saveCharacterData);
-            document.getElementById('char-class').addEventListener('input', saveCharacterData);
-            document.getElementById('char-gear').addEventListener('input', saveCharacterData);
         }
     </script>
 </body>
